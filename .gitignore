@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated data files - regenerate with data_generator.py, don't track in git
+training_data.csv
+real_prices.csv
+watched_routes.csv

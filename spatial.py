@@ -1,5 +1,6 @@
 import h3
 import math 
+import requests
 def to_h3(lat, lon, resolution=8):
     cell=h3.latlng_to_cell(lat, lon, resolution)
     return cell
@@ -32,11 +33,25 @@ def haversine_km(lat1,lon1,lat2,lon2):
     # that angle into an actual arc length -- the real distance in km.
     distance= R*c
     return distance
+
+def get_road_distance_km(lat1, lon1, lat2, lon2):
+    # OSRM wants "lon,lat" order -- same gotcha as GeoJSON/Shapely earlier
+    url = f"https://router.project-osrm.org/route/v1/driving/{lon1},{lat1};{lon2},{lat2}"
+    response = requests.get(url, params={"overview": "false"})
+    data = response.json()
+
+    if data.get("code") != "Ok":
+        return None  # no drivable route found between these points
+
+    meters = data["routes"][0]["distance"]
+    return meters / 1000
+
 if __name__ == "__main__":
-    cell=to_h3(12.9732913, 77.6443636)
+    cell = to_h3(12.9732913, 77.6443636)
     print("H3 cell:", cell)
 
+    dist = haversine_km(12.9732913, 77.6443636, 12.9352, 77.6146)
+    print("Straight-line distance (km):", dist)
 
-
-    dist=haversine_km(12.9732913, 77.6443636, 12.9352, 77.6146)
-    print("Distance (km):", dist)
+    road_dist = get_road_distance_km(12.9732913, 77.6443636, 12.9352, 77.6146)
+    print("Road distance (km):", road_dist)
