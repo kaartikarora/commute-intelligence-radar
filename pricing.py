@@ -6,6 +6,12 @@ VEHICLE_TYPES = {
     "Auto":  {"base_fare": 40, "per_km": 20, "night_surcharge": True},
     "Mini":  {"base_fare": 40, "per_km": 12, "night_surcharge": False},
     "Sedan": {"base_fare": 60, "per_km": 16, "night_surcharge": False},
+
+}
+DISPLAY_NAMES = {
+    "Auto": "Auto",
+    "Mini": "Non-AC",
+    "Sedan": "Premier AC",
 }
 def peak_factor(hour, is_friday=False):
     morning=math.exp(-((hour-9)**2)/(2*1.2**2))*1.0
@@ -26,6 +32,7 @@ def estimate_price(distance_km, hour, is_weekend, is_rainy, vehicle_type="Mini",
     weekend_damp = 0.5 if is_weekend else 1.0
     raw_signal = min(peak * weekend_damp + (0.3 if is_rainy else 0), 1.0)
     surge = MIN_SURGE + (MAX_SURGE - MIN_SURGE) * raw_signal
+
 
     return {"price": round(base * surge, 2), "surge": round(surge, 2), "base": round(base, 2), "is_estimate": True}
 

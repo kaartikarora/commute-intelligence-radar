@@ -1,10 +1,10 @@
 import csv
 import os
 from datetime import datetime
-
+from pricing import VEHICLE_TYPES, DISPLAY_NAMES
 from geocoding import geocode
 from spatial import get_road_distance_km
-from pricing import VEHICLE_TYPES
+
 CSV_PATH="real_prices.csv"
 
 def main():
@@ -31,10 +31,12 @@ def main():
             writer.writeheader()
 
         logged = 0
+
         for vehicle_type in VEHICLE_TYPES:
-            price_input = input(f"Price for {vehicle_type} (blank if not shown): Rs.").strip()
+            label = DISPLAY_NAMES[vehicle_type]
+            price_input = input(f"Price for {label} (blank if not shown): Rs.").strip()
             if not price_input:
-                continue  # not offered at this location/time -- skip, don't log a fake row
+                continue
 
             writer.writerow({
                 "timestamp": now.isoformat(timespec="minutes"),
