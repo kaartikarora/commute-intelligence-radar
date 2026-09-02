@@ -27,7 +27,7 @@ def estimate_price(distance_km, hour, is_weekend, is_rainy, vehicle_type="Mini",
     raw_signal = min(peak * weekend_damp + (0.3 if is_rainy else 0), 1.0)
     surge = MIN_SURGE + (MAX_SURGE - MIN_SURGE) * raw_signal
 
-    return {"price": round(base * surge, 2), "surge": round(surge, 2), "is_estimate": True}
+    return {"price": round(base * surge, 2), "surge": round(surge, 2), "base": round(base, 2), "is_estimate": True}
 
 if __name__ == "__main__":
     print(estimate_price(5.3, 18.5, is_weekend=False, is_rainy=False, vehicle_type="Mini"))
