@@ -102,3 +102,196 @@ Then manually checked the real Uber app for the same routes at the same time. **
 - [ ] Block 8: model training, incorporating real + synthetic data blend
 - [ ] Continue manual logging at varied times of day (currently only have late-night data points — need at least one real evening-rush data point to properly validate the *existing* commute-peak logic, separate from the newly-discovered late-night gap)
 - [ ] AWS account + infra setup (deferred until local pipeline is fully working)
+
+## 2026-09-02 — Feature engineering, first trained model, surge vs. price target decision
+
+### Goal for the session
+
+Finish block 7 (feature engineering) and block 8 (train the actual ML model), moving from a hand-written pricing formula to a real model that learns from data.
+
+---
+
+### 1. Feature engineering (`features.py`)
+
+Built a pipeline combining two data sources into one training table:
+
+- **Synthetic data** (`training_data.csv`, 500 rows) — large, cheap, covers many routes/times, but only as accurate as the hand-written formula that generated it.
+- **Real logged data** (`real_prices.csv`, growing via `manual_logger.py`) — small, but ground truth.
+
+**Sim-to-real blending:** real rows are duplicated (`real_weight=5`) before being combined with the synthetic set, so a small number of real observations meaningfully influence training instead of being drowned out by the much larger synthetic set.
+
+**One-hot encoding:** `vehicle_type` (text: "Auto"/"Mini"/"Sedan") converted to three separate 0/1 columns (`vt_Auto`, `vt_Mini`, `vt_Sedan`) via `pd.get_dummies()`. Necessary because assigning plain numbers (Auto=1, Mini=2, Sedan=3) would falsely imply an order/distance between categories that doesn't exist.
+
+Introduced `pandas` properly this session — DataFrames as the working data structure, replacing manual `csv.DictReader` loops used everywhere else so far. Noted: pandas auto-converts "True"/"False" text columns to real booleans on read, unlike plain `csv` module — a behavior difference worth remembering given the manual string-comparison trap hit earlier with `csv.DictReader` in `compare_predictions.py`.
+
+---
+
+### 2. First trained model (`model.py`)
+
+Installed `scikit-learn`, `joblib`. Built `train()`:
+
+- Split data 80/20 (train/test) via `train_test_split`, `random_state=42` for reproducibility.
+- Trained a `GradientBoostingRegressor` — an ensemble of decision trees, each correcting the errors of all trees before it.
+- Evaluated with **MAE (Mean Absolute Error)** — average of `|predicted - actual|` across held-out test rows, i.e. genuinely unseen data, not training data being re-checked.
+- Saved the trained model + one-hot column list together via `joblib.dump()`, to `surge_model.pkl`.
+
+**First run, target = `surge`:** MAE = 0.136 surge points on held-out data.
+
+**Checked `model.feature_importances_`** to see what the model actually relied on:
+
+| Feature | Importance |
+|---|---|
+| hour | 88.5% |
+| distance_km | 5.9% |
+| is_weekend | 4.4% |
+| vt_Auto | 1.0% |
+| vt_Sedan | 0.1% |
+| vt_Mini | 0.05% |
+
+---
+
+### 3. Key decision: switched prediction target from `surge` to `price`
+
+**Reasoning:** the feature importance table wasn't a model bug — it was the model accurately learning that in our formula, `surge` only depends on hour/weekend/rain, never on distance or vehicle type. But that's not actually what matters to a rider — they care about the final price, which *does* depend heavily on distance and vehicle type (via base fare). Predicting `surge` alone gives an incomplete picture; predicting `price` directly captures the whole thing at once and is a more directly usable output for the eventual live demo (`main.py`).
+
+**Consequence for `features.py`:** simplified, not just changed — since real rows already have a real logged `price` in `real_prices.csv`, no reverse-engineering through `estimate_price()` was needed anymore (previously required to back out implied surge for real rows, same algebra as `compare_predictions.py`). Removed the `pricing.py` import and the per-row surge-backing-out loop entirely. `X` (features) unchanged; only the target column swapped (`combined["surge"]` → `combined["price"]`).
+
+**Expectation set before rerunning:** MAE will look numerically larger under the price target (rupees, hundreds-scale) vs. the surge target (a 0.5–2.0 range) — this is a unit-scale difference, not a worse model, and shouldn't be compared to the old `0.136` figure directly.
+
+*(Retrain with the new price target pending — to be run and recorded next session.)*
+
+---
+
+### Bugs / environment issues hit today
+
+| Issue | Symptom | Fix |
+|---|---|---|
+| `ModuleNotFoundError: No module named 'pandas'` despite having installed it previously | A `.venv` (virtual environment) was active in this terminal session, isolated from whatever global Python environment `pandas` was originally installed into | Reinstalled all required packages (`requests h3 pandas scikit-learn joblib`) explicitly inside the active `.venv` |
+
+---
+
+### Concept: why the model doesn't "keep learning" automatically
+
+`GradientBoostingRegressor` is a **batch learner** — it has no built-in mechanism to incrementally absorb one new example at a time. New rows added to `real_prices.csv` via `manual_logger.py` have zero effect on the saved `surge_model.pkl` until `python model.py` is explicitly rerun, retraining from scratch on the full (old + new) dataset. This is standard practice in real ML systems (e.g. "retrain nightly"), not a limitation specific to this project — later, this is exactly what the scheduled "ML training" step in the AWS architecture (from the earlier planning session) is meant to automate.
+
+---
+
+### Open items for next session
+
+- [ ] Rerun `model.py` with the new `price` target, record new MAE + feature importances
+- [ ] Confirm `distance_km` and `vehicle_type` now carry meaningfully more importance
+- [ ] Write the "predict next price drop" scanning logic on top of the trained model
+- [ ] Build `main.py` — the first true end-to-end live demo (type a route, get a real prediction)
+- [ ] Continue logging real data at varied times (weekend day still outstanding)
+
+## 2026-09-02 (continued) — Price-target retrain, sanity check, and calibration hitting a data wall
+
+### Retrained with `price` target (block 8, second pass)
+
+After switching the model's prediction target from `surge` to `price` (see previous entry), retrained and confirmed the change worked as intended.
+
+**MAE:** Rs.78.38 on held-out data. NOT comparable to the previous 0.136 figure — that was in surge units (0.5–2.0 scale), this is in rupees (hundreds scale). Against real logged prices ranging ~Rs.130–680, an average error of ~Rs.78 is a reasonable first-pass result, expected to improve as more real data accumulates.
+
+**Feature importance shifted exactly as predicted** when moving from surge to price:
+
+| Feature | Predicting surge (before) | Predicting price (now) |
+|---|---|---|
+| hour | 88.5% | 49.1% |
+| distance_km | 5.9% | **38.0%** |
+| vt_Auto | 1.0% | 7.5% |
+| vt_Mini | 0.05% | 4.0% |
+| is_weekend | 4.4% | 1.2% |
+| vt_Sedan | 0.1% | 0.2% |
+
+`distance_km` jumping from ~6% to 38%, and vehicle type from near-zero to meaningful, confirms the model now learns the whole price picture (base fare + surge) rather than just the time-driven surge half. This was the entire point of the target change.
+
+### Added prediction + sanity-check functions to `model.py`
+
+Added `load_model()` and `predict_price()` — the latter rebuilds the exact input shape the model expects (including one-hot vehicle columns) for a single prediction. This is also the function `main.py` will eventually call.
+
+**Sanity check across four hand-picked routes:**
+
+| Route | Predicted | Directionally correct? |
+|---|---|---|
+| 5.7km Mini @ 13:00 | Rs.33 | **No — implausibly low** |
+| 5.7km Mini @ 19:00 | Rs.280 | Yes (evening > midday ✓) |
+| 30km Sedan @ 19:00 | Rs.1014 | Yes (long premium ride ✓) |
+| 5.7km Auto @ 03:00 | Rs.138 | Yes (night surcharge ✓) |
+
+Three of four moved in sensible directions — the model correctly learned time/distance/vehicle relationships. The Rs.33 midday Mini is implausibly low: 1pm is a dead zone in the pricing model (surge pushed to the 0.5x legal floor), combined with thin real midday data and unsourced Mini base numbers (`base_fare: 40, per_km: 12`, guesses from early on). The sanity check did its job — surfaced a real weakness the aggregate MAE had averaged over.
+
+### Calibration attempt (`calibrate.py`) — hit a data wall twice
+
+Wrote `calibrate.py` to back out real `base_fare`/`per_km` for Mini from logged prices, using least-squares linear regression (fitting `base_price = base_fare + per_km × distance` to real `(distance, implied_base)` points, after stripping out estimated surge).
+
+**Attempt 1 (all 6 Mini rows): produced `base_fare = -579.7` (impossible).**
+Diagnosis: the three late-night rows (~00:30) had their surge estimated at the 0.5x floor by `peak_factor`, which has no concept of late-night driver scarcity (the same gap found in the earlier calibration session). Dividing genuinely-high real late-night prices by a wrongly-low 0.5x surge dumped all the unexplained cost into "base fare," inflating implied bases to Rs.289–964 and breaking the fit. The negative result was the math correctly signaling the input surge estimates were wrong for those rows.
+
+**Attempt 2 (excluded 10pm–5am rows): produced `per_km = -4.7` (impossible).**
+Diagnosis: this left only 3 daytime points, all clustered within ~2km of each other (12.8, 14.7, 13.1 km). You can't determine a line's slope (`per_km`) from points clustered at nearly the same x-value — the unrelated vertical scatter in implied base (Rs.386, 274, 132, driven by route-specific and surge-noise factors we don't model) gets misread as a fake downward slope.
+
+**Conclusion:** calibration is currently impossible with the data on hand, and forcing it produces physically-impossible results in one direction or another. This is the calibration code correctly refusing to invent a trustworthy answer from untrustworthy input — better a visibly-absurd number that makes us stop than a plausible-but-wrong one we'd trust. **Left `pricing.py`'s Mini numbers unchanged** — the original guesses are better than a `-4.7` slope from clustered data.
+
+### KNOWN BLOCKED ITEM
+
+- **Mini base-fare calibration is blocked on data**, specifically needs: real **daytime** (5am–10pm) Mini rides across a **spread of distances** (some ~3km, some ~10km, some ~25km — deliberately varied, not clustered). Target ~6–8 such points. This single logging habit unblocks both the calibration AND the model's midday dead-zone at once. `calibrate.py` is correct and ready; it's waiting on better-spread data, same as the model.
+
+### Open items for next session
+
+- [ ] Log daytime Mini rides at deliberately varied distances (unblocks calibration + midday predictions)
+- [ ] Build `main.py` — end-to-end live demo (works fine now regardless; uses current model predictions)
+- [ ] Re-run `calibrate.py` once ~6–8 distance-varied daytime points exist; update `pricing.py` if sane
+- [ ] Retrain model (`python model.py`) periodically as real data grows
+- [ ] Weekend data still outstanding
+
+## 2026-09-03 (early hours) — main.py end-to-end, display names, and the self-correction loop working
+
+### main.py — full pipeline, end to end
+
+Built `main.py`, tying every prior block into one runnable program: type pickup + drop → geocode both → Bangalore boundary check → OSRM road distance → load trained model → predict price per vehicle type → display. Almost no new logic; it's the payoff of building tested pieces separately — assembly, not new problem-solving. Only genuinely new bit: predicting for the current moment via `datetime.now()` rather than a typed-in hour.
+
+First live run (KR Puram → Lalbagh, 15.3km, ~2:22am) predicted Auto ₹279 / Mini ₹159 / Sedan ₹245. Real app prices checked immediately after: ₹448 / ₹258 / ₹325 — predictions ~1.3–1.6x low, the now-familiar late-night driver-scarcity gap, surfaced a fourth independent way.
+
+### Display names (decoupled from internal keys)
+
+Wanted to rename Mini→"Non-AC", Sedan→"Premier AC" for users. Rather than rename everywhere (which would touch VEHICLE_TYPES keys, all CSVs, the model's one-hot columns, and orphan existing logged data), used the standard **display-name decoupling** pattern: added a `DISPLAY_NAMES` dict in `pricing.py` mapping internal key → pretty label, and used it ONLY at print/prompt points in `main.py` and `manual_logger.py`. Internal keys (`Mini`/`Sedan`) stay untouched everywhere data is stored or fed to the model. No CSV edits, no retrain needed for the rename. Key discipline: `label` is display-only; `vehicle_type` is what gets written/modelled.
+
+### Logged a strong batch of real data
+
+Logged ~6 real routes with good distance spread (Koramangala→HSR ~5km up to Yelahanka→Electronic City ~36km). Note: all logged live at ~2:30–3:48am (was awake building), so all fall in the 10pm–5am window.
+
+Also noted: Nominatim geocoding failed on some landmark phrasings ("ITPL Main Road, Whitefield", "Whitefield ITPL TTMC") but worked on "Whitefield ITPL,Bangalore" — rephrase-on-failure remains the workaround.
+
+### Calibration still blocked — but for a NEW reason
+
+Re-ran `calibrate.py` hoping the new distance spread would fix the earlier `-4.7` per_km. It didn't — still only 3 points, same result. Diagnosis via direct CSV inspection: all 5 new Mini rows have hours 2.72–3.80 (logged at 3am), so `calibrate.py`'s 10pm–5am filter correctly excludes every one. Irony: logged exactly the distance variety calibration needed, but at the one time of day calibration can't trust the surge estimate. **Calibration now blocked specifically on distance-varied _daytime_ (5am–10pm) rides**, not on distance spread anymore.
+
+### The self-correction loop worked (no hardcoded night constant)
+
+Earlier in the session, decided AGAINST adding a hardcoded ~1.3x night-scarcity multiplier to `pricing.py` — kept it clean, chose to let the model learn night pricing from real data instead. Then retrained (`python model.py`) on the now-larger real dataset (including the 5 new night rides, weighted 5x).
+
+**Results — retrain visibly pulled predictions toward reality:**
+
+- `distance_km` feature importance rose to 42.3% (from 38%), now ~tied with `hour` (42.5%) — the distance-varied night logging directly taught the model distance matters more.
+- 03:00 Auto sanity check: ₹138 → ₹165 (night data pulling late predictions up).
+- Live re-run of KR Puram → Lalbagh at 4am:
+
+| Vehicle | Before retrain | Real logged | After retrain |
+|---|---|---|---|
+| Auto | ₹279 | ₹448 | ₹429 |
+| Non-AC | ₹159 | ₹258 | **₹263** |
+| Premier AC | ₹245 | ₹325 | ₹361 |
+
+Non-AC essentially dead-on. The night-scarcity effect got **learned from real data**, not hand-coded — exactly the clean path chosen earlier. Caveat: this route matched tightly partly because it was itself logged tonight (model has now seen it); unlogged routes won't be this tight yet. But the mechanism is proven: log real data → retrain → predictions improve.
+
+### Still-weak spot (consistent, expected)
+
+13:00 short Mini still predicts ₹35 (implausibly low) — no daytime short-Mini data logged yet, so nothing corrected it. Model improved exactly where given data, stayed weak exactly where not. Correct behaviour.
+
+### Open items
+
+- [ ] Log distance-varied DAYTIME (5am–10pm) rides — unblocks calibration AND the midday dead-zone
+- [ ] Re-run calibrate.py once daytime spread exists
+- [ ] Continue logging generally; retrain periodically
+- [ ] Weekend data still outstanding
+- [ ] main.py works but is CLI-only — web dashboard / AWS still ahead

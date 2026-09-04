@@ -221,3 +221,5 @@ __marimo__/
 training_data.csv
 real_prices.csv
 watched_routes.csv
+automatemanuallogger.txt
+uber_profile/
