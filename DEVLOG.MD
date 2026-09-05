@@ -295,3 +295,48 @@ Non-AC essentially dead-on. The night-scarcity effect got **learned from real da
 - [ ] Continue logging generally; retrain periodically
 - [ ] Weekend data still outstanding
 - [ ] main.py works but is CLI-only — web dashboard / AWS still ahead
+
+## 2026-09-05 — Automating the manual logger: persistent Uber session + real hub-name pool
+
+### Goal for the session
+
+Replace `manual_logger.py`'s manual "type in the real price" workflow with something that can run unattended every 2-3 hours. Landed on: a persistent Playwright browser session (instead of a static copied cookie) to keep Uber's internal GraphQL API authenticated long-term, plus a real-place hub pool (via OSM's Overpass API) to pick sensible random Bangalore routes instead of raw random coordinates or a fixed watchlist. Full design written up separately (`automatemanuallogger.txt`).
+
+### 1. Why not a static cookie
+
+An existing scraper (outside this repo) hits Uber's internal GraphQL endpoint using a session cookie copied once from devtools — reviewing it surfaced two problems: a bug (`cookies = { cooks, }` referenced an undefined name, so the cookie dict was never actually built) and a live session token sitting in plaintext inside a comment. Beyond the bug, a static cookie is fundamentally fragile on its own terms: it rots in "several days to weeks" with nothing to refresh it, requiring manual re-copying forever — automating around a decaying secret just moves the manual work, it doesn't remove it.
+
+### 2. Persistent browser session (`uber_session.py`)
+
+Built on Playwright's `launch_persistent_context()` — points Chromium at a profile folder (`uber_profile/`) that behaves like a normal saved Chrome profile. Log in once by hand (`login()`, headed/visible), and every future run (`get_fresh_cookies()`, headless) reuses that same saved session, pulling current cookies straight out of the live browser context. Because a real browser periodically loads the real page, Uber's own frontend can refresh short-lived tokens the way it would for a normal user — expected to meaningfully outlast a frozen cookie string, though not a permanent guarantee.
+
+Verified end to end: `login()` opened a real window, logged in manually, saved the session to `uber_profile/`; `get_fresh_cookies()` then returned 49 cookies headlessly with zero login prompt, confirming the persistent session survives a full headless relaunch. `uber_profile/` is treated as a real credential store — gitignored before `login()` was ever run, never printed or logged.
+
+### 3. Real hub-name pool (`blr_hubs.py`)
+
+Random raw coordinates inside the Bangalore bounding box (the same approach `data_generator.py` already uses for synthetic data) risk landing on a lake, a park interior, or a highway median — fine for a formula that doesn't care, bad for a real Uber pickup pin. Instead: query OSM's **Overpass API** (a different service from Nominatim, built for bulk/category queries rather than "look up this one name") for every `place=suburb/neighbourhood/quarter` node inside the existing `bangalore_bounds` (reused from `geocoding.py`, not retyped), and save the resulting names locally (`bangalore_hubs.csv`) so future route-picking forward-geocodes real place names via the existing `geocode()` instead of trusting arbitrary coordinates.
+
+First run returned 1032 names — far more than the ~50–150 expected, since `neighbourhood`/`quarter` tags cover far more small sub-localities than just the well-known named areas.
+
+**Data quality problem found on inspection:** many names were bare, ambiguous layout labels with no place context — `"1st Block"`, `"2nd Phase"`, `"Sector 5"`. Bangalore has many different layouts each with their own numbered blocks/phases, so geocoding one of these alone has no way to know which is meant. Fixed with a regex filter (`is_too_generic()`) that rejects names that are *entirely* a bare numbered label, while keeping names that carry real context (`"12th Block Nagarbhavi"`, `"1st Main Road, Indiranagar"`) — anchored with `^`/`$` specifically so it only rejects a whole-string match, not a partial one. Dropped the pool from 1032 to 1015 names.
+
+Also decided: append `", Bangalore"` to hub names at the point they're actually geocoded later (in `auto_logger.py`, not baked into the CSV) — doesn't guarantee Nominatim picks the exact original OSM node when a name is ambiguous within the city, but reliably keeps the match within Bangalore instead of an unrelated place elsewhere, which is good enough for this project's purposes.
+
+### Bugs hit and fixed today
+
+| Bug | Symptom | Fix |
+|---|---|---|
+| Missing f-string body in `build_query()` (`query = f` with nothing after it) | `SyntaxError` | Restored the triple-quoted Overpass QL query string |
+| `is_too_generic()` written but never called inside `fetch_hub_names()`'s loop | Filter had zero effect — pool count stayed at 1032 after adding the function | Changed `if name:` to `if name and not is_too_generic(name):` |
+| Overpass's public server (`overpass-api.de`) returned `HTTP 504` | Request failed, "Fetched 0 named localities" | Retried / switched to a mirror instance (`lz4.overpass-api.de`) — known flakiness of the free shared public server, not a code bug |
+
+### Cybersecurity framing for this work
+
+Treating this automation as a demonstration of secure engineering around authentication, not just working code (full writeup in `automatemanuallogger.txt`): reverse-engineered an internal API via traffic analysis, session lifecycle handled via a persistent browser context instead of a frozen static secret, credential material (`uber_profile/`) never committed or logged, and external responses (Overpass today; Uber/OSRM/Open-Meteo next) treated as untrusted input to validate rather than trust blindly. Calibration note recorded alongside this: evidence of security-conscious engineering, not a substitute for a dedicated security project if that's ever the goal.
+
+### Open items for next session
+
+- [ ] Build `auto_logger.py` — the orchestrator: pick 3 routes (short/medium/long distance bands) from `bangalore_hubs.csv`, get weather (Open-Meteo), get fresh cookies (`uber_session.py`), scrape Uber prices, validate, write to `real_prices.csv`
+- [ ] Confirm real Uber tier display names on first live scrape, adjust `UBER_NAME_MAP` if they differ from the Auto/UberGo/Premier guess
+- [ ] Set up Windows Task Scheduler once `auto_logger.py` is verified manually (target: every 2-3 hours)
+- [ ] Add an OSM/ODbL attribution note somewhere (README or code comment) for the hub-name data, consistent with how other real data sources are already cited in this devlog
