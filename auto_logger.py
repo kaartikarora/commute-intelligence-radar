@@ -5,7 +5,7 @@ import os
 import random
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 from playwright.sync_api import sync_playwright
@@ -44,6 +44,7 @@ def check_distance_band(pickup_name, drop_name, band):
     # Append the city to disambiguate names that recur elsewhere in India.
     pickup = geocode(f"{pickup_name}, Bangalore")
     drop = geocode(f"{drop_name}, Bangalore")
+    time.sleep(1)  # Nominatim fair-use: max ~1 request/sec
 
     if not pickup or not drop:
         return None
@@ -247,6 +248,44 @@ def parse_uber_prices(tiers):
     return prices
 
 
+STATE_FILE = "next_run_after.txt"
+MIN_GAP_HOURS = 2
+MAX_GAP_HOURS = 3
+
+
+def should_run_now():
+    """Checks STATE_FILE for the saved 'don't run again until' time.
+
+    Missing or corrupt state fails OPEN (runs now) rather than silently
+    blocking forever -- a broken state file should never be able to
+    permanently stop the automation.
+    """
+    if not os.path.exists(STATE_FILE):
+        return True
+
+    try:
+        with open(STATE_FILE, "r") as f:
+            next_run_after = datetime.fromisoformat(f.read().strip())
+    except (ValueError, OSError):
+        return True
+
+    return datetime.now() >= next_run_after
+
+
+def schedule_next_run():
+    """Picks a fresh random gap (2-3 hours) from now and saves it.
+
+    Because each cycle draws independently from the last ACTUAL run
+    time (not a fixed daily clock reference), real run times drift
+    differently day to day instead of following the same grid.
+    """
+    gap_hours = random.uniform(MIN_GAP_HOURS, MAX_GAP_HOURS)
+    next_run_after = datetime.now() + timedelta(hours=gap_hours)
+
+    with open(STATE_FILE, "w") as f:
+        f.write(next_run_after.isoformat())
+
+
 CSV_PATH = "real_prices.csv"
 FIELDNAMES = ["timestamp", "pickup", "dropoff", "distance_km", "hour",
               "is_weekend", "is_rainy", "vehicle_type", "price"]
@@ -279,6 +318,12 @@ def write_prices(route, prices, is_rainy):
 
 
 def main():
+    # Task Scheduler fires this every 15 minutes, always -- this check
+    # decides whether it's actually time to do real work yet. Most
+    # invocations just exit here immediately, cheaply.
+    if not should_run_now():
+        return
+
     print(f"\n=== Run at {datetime.now().isoformat(timespec='seconds')} ===")
 
     routes = pick_routes()
@@ -308,6 +353,11 @@ def main():
 
         write_prices(route, prices, is_rainy)
         print(f"Logged [{route['band']}] {route['pickup']} -> {route['dropoff']}: {prices}")
+
+    # Only reached on success -- an UberAuthError exits before this,
+    # so a broken session gets retried on the NEXT 15-min poll instead
+    # of silently waiting out a full 2-3 hour gap.
+    schedule_next_run()
 
 
 if __name__ == "__main__":
