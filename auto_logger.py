@@ -4,6 +4,7 @@ import csv
 import os
 import random
 import sys
+import time
 from datetime import datetime
 
 import requests
@@ -278,6 +279,8 @@ def write_prices(route, prices, is_rainy):
 
 
 def main():
+    print(f"\n=== Run at {datetime.now().isoformat(timespec='seconds')} ===")
+
     routes = pick_routes()
 
     for route in routes:
