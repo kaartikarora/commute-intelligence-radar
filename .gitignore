@@ -227,3 +227,5 @@ bangalore_hubs.csv
 LEARNING_NOTES.md
 auto_logger.log
 next_run_after.txt
+forecast.png
+surge_model.pkl

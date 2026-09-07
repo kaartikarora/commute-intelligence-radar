@@ -340,3 +340,64 @@ Treating this automation as a demonstration of secure engineering around authent
 - [ ] Confirm real Uber tier display names on first live scrape, adjust `UBER_NAME_MAP` if they differ from the Auto/UberGo/Premier guess
 - [ ] Set up Windows Task Scheduler once `auto_logger.py` is verified manually (target: every 2-3 hours)
 - [ ] Add an OSM/ODbL attribution note somewhere (README or code comment) for the hub-name data, consistent with how other real data sources are already cited in this devlog
+
+## 2026-09-07 (evening) — The forecast feature: the actual payoff of the whole project
+
+### Context
+
+Every prior session built ingredients (geocoding, routing, pricing, data pipeline, trained model). This session built the thing they were all *for*: the price forecast + "should you wait?" recommendation, with honest uncertainty visualization. This is the core value proposition of the project — not "what's the price now" but "here's how it's likely to move, and whether waiting saves money."
+
+### Retrained first (latest real data)
+
+`python model.py` on current `real_prices.csv`:
+- **MAE: 73.65** (down from 78 → 73.65 as real data accumulates)
+- **Feature importance shifted again:** `distance_km` now TOP feature at 47% (was 38%), overtaking `hour` (38%). The distance-varied logging directly taught the model distance matters more.
+- 13:00 short-Mini sanity check: ₹35 → **₹58** (midday dead-zone improving as daytime data comes in, still slightly low)
+
+### Built `forecast.py`
+
+Design decisions (all settled through discussion, tuned by real-world judgment not guessing):
+- **Graph horizon: 4 hours ahead + 1 hour of past context** — past shown as "hindcast" so the user can see the trend leading into now, separated by a dashed "now" marker.
+- **Wait recommendation horizon: max 60 min** — nobody realistically waits longer for a ride, even if the graph shows more.
+- **Prediction granularity: 10-min steps** — decided against 4-min (model inputs barely change over 4 min, so it'd add points without adding information; 10 min captures the hour-scale patterns smoothly).
+- **All 3 vehicle types as 3 lines** on one graph.
+
+**The wait logic — scaled savings rule (`SAVINGS_RATE`):** a wait is only recommended if `savings > SAVINGS_RATE * wait_minutes`. This captures "short waits need only small savings, long waits need big savings" in one line. Tuned from 3.0 → 1.0 → **1.7** Rs/min by feel for Bangalore (explicitly a subjective preference knob, NOT a sourced number — commented as such). Among all qualifying waits, picks the one with the highest margin (`savings - rate*wait`).
+
+Core new concept vs. everything before: `build_forecast` loops the existing `predict_price()` across future (and past) time steps — same model, just asked about other times instead of now. Everything else is orchestration of already-built, already-tested functions.
+
+### Data-confidence shading — turning a limitation into a feature
+
+Looked at the first forecast graph and immediately saw the problem: jagged spikes + dead-flat plateaus = **not enough data**, model lurching where real points are sparse and falling back to flat averages where it has none. This is a data problem, not a code problem — `forecast.py` was faithfully drawing what the model believes; the model just doesn't believe much yet.
+
+Rather than hide this, made it visible: **red shading marks time regions where real training data is sparse (low confidence).**
+
+Key debugging moment: first version measured density from the *combined* (synthetic + real) training set — every hour showed 14-72 nearby rows, so nothing got flagged. But that coverage is synthetic (the generator fills all 24 hours evenly by construction); it says nothing about real grounding. **Fixed to measure density from `real_prices.csv` ONLY** — the honest signal for "is the model grounded in real observations or just echoing the synthetic formula here." Real counts are small and clustered:
+```
+[0,0,0,0,0,0,0,0, 5,5,7,7,7,7, 2,2, 0,0,0,0,0, 3,3,3,3,3,3, 6,12,12]
+```
+Zeros everywhere except the handful of time windows with logged rides. `SPARSE_THRESHOLD` dropped to 2 accordingly. Result: graph shades red everywhere real coverage is thin (currently most of it), clear only at well-logged windows — an honest map of "where the model is guessing" that doubles as a map of "where I still need to log rides." It shrinks visibly on each retrain as data grows.
+
+### Why this matters (portfolio angle)
+
+Anyone can plot a prediction line. Showing *calibrated uncertainty* — honestly marking where the model is confident vs. guessing — demonstrates understanding of a model's limits, not just how to run scikit-learn. The most valuable moment of the session was reading the raw graph and correctly diagnosing "not enough data" rather than assuming a code bug — that upstream-vs-code instinct is the real ML skill.
+
+### Where the project stands
+
+**Complete core project works end to end:** geocode → boundary check → OSRM routing → trained model → multi-hour forecast → scaled wait recommendation → uncertainty-shaded graph. Blocks 1 through the payoff feature, done.
+
+### Bugs hit
+
+| Bug | Symptom | Fix |
+|---|---|---|
+| `matplotlib` not installed in `.venv` | ModuleNotFoundError | `pip install matplotlib` inside active venv |
+| `build_forecast` missing `now` parameter on disk | `NameError: name 'now' is not defined` | Added `now` to the function signature |
+| Confidence density measured synthetic+real combined | No shading appeared (all hours looked well-covered) | Measure density from `real_prices.csv` only |
+
+### Open items
+
+- [ ] Keep logging real rides across varied times/distances → curves smooth + red bands shrink on retrain
+- [ ] Consider tuning SAVINGS_RATE once seen against more real routes
+- [ ] SHAP model explainability (`explain_model.py`) — planned, not yet built
+- [ ] Web dashboard / AWS deployment — the remaining expansion work (CLI-only for now)
+- [ ] Weekend data still thin
