@@ -378,9 +378,6 @@ Key debugging moment: first version measured density from the *combined* (synthe
 ```
 Zeros everywhere except the handful of time windows with logged rides. `SPARSE_THRESHOLD` dropped to 2 accordingly. Result: graph shades red everywhere real coverage is thin (currently most of it), clear only at well-logged windows — an honest map of "where the model is guessing" that doubles as a map of "where I still need to log rides." It shrinks visibly on each retrain as data grows.
 
-### Why this matters (portfolio angle)
-
-Anyone can plot a prediction line. Showing *calibrated uncertainty* — honestly marking where the model is confident vs. guessing — demonstrates understanding of a model's limits, not just how to run scikit-learn. The most valuable moment of the session was reading the raw graph and correctly diagnosing "not enough data" rather than assuming a code bug — that upstream-vs-code instinct is the real ML skill.
 
 ### Where the project stands
 
@@ -394,10 +391,31 @@ Anyone can plot a prediction line. Showing *calibrated uncertainty* — honestly
 | `build_forecast` missing `now` parameter on disk | `NameError: name 'now' is not defined` | Added `now` to the function signature |
 | Confidence density measured synthetic+real combined | No shading appeared (all hours looked well-covered) | Measure density from `real_prices.csv` only |
 
-### Open items
+2026-09-08 — SHAP model explainability
+Goal
 
-- [ ] Keep logging real rides across varied times/distances → curves smooth + red bands shrink on retrain
-- [ ] Consider tuning SAVINGS_RATE once seen against more real routes
-- [ ] SHAP model explainability (`explain_model.py`) — planned, not yet built
-- [ ] Web dashboard / AWS deployment — the remaining expansion work (CLI-only for now)
-- [ ] Weekend data still thin
+Add SHAP analysis to understand how the model makes predictions (not just how accurate it is). Warm-up task before the web dashboard. Also makes the "SHAP" line on the resume demonstrated rather than just claimed.
+
+Retrained first
+
+python model.py on latest real_prices.csv:
+
+MAE: 77.72 (slight wobble up from 73.65 — normal as more varied/harder real rows get added; not a regression)
+distance_km now top feature at 50% (up from 47%), hour 36%, rest minor. Continued logging keeps reinforcing distance as the dominant price driver.
+Built explain_model.py
+
+Uses shap.TreeExplainer (SHAP's exact, fast method specifically for tree-based models like GradientBoostingRegressor). Produces three plots:
+
+Summary plot — all features ranked by impact, colored by feature value, showing direction of effect
+Dependence plot for hour — shape of the time-of-day effect
+Dependence plot for distance_km — shape of the distance effect
+Bugs hit (all the same root cause)
+
+Three instances of referencing a function without calling it (missing ()), a C++ habit — load_features instead of load_features(), and plt.tight_layout / plt.close without parens. The load_features one broke the data load; the plt ones silently did nothing. Lesson reinforced: in Python, foo is a reference to the function, foo() runs it.
+
+What SHAP revealed
+distance_km dependence plot is the standout result — a clean, near-linear upward relationship: short trips push price down (negative SHAP), long trips push it up, climbing steadily. Visual proof the model learned a sensible, coherent pricing structure, not noise. Strong portfolio artifact.
+Summary plot confirmed the sensible ranking: distance (biggest, cleanly split blue-left/red-right = short cheap, long expensive), then hour (bigger but mixed color spread, since hour's effect isn't monotonic — 3am and 6pm both high-impact for different reasons), then is_weekend and vehicle types as minor factors.
+Open finding: vt_Auto pushes predictions UP (counterintuitive)
+
+SHAP showed selecting Auto pushes price above baseline, which contradicts real-world intuition (autos are usually the cheapest option). Traced to likely cause: Auto is the only vehicle type with a night surcharge (1.5x, 10pm–5am), and real logged data is heavily night-skewed — so in the training data, "Auto" and "logged during a night surcharge" are entangled, and the model can't separate them without more daytime Auto data. Also possibly compounded by Auto's higher per_km (20 vs Mini's 12, an early guess). Deliberately NOT fixing by hand — expecting more daytime Auto logging to disentangle it on future retrains. (Same data-coverage root cause as the night-scarcity and midday-dead-zone findings, surfacing in another form.)
