@@ -229,3 +229,6 @@ auto_logger.log
 next_run_after.txt
 forecast.png
 surge_model.pkl
+shap_summary.png
+shap_hour.png
+shap_distance.png
