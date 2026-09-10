@@ -9,6 +9,14 @@ from pricing import VEHICLE_TYPES, DISPLAY_NAMES
 from forecast import build_forecast, find_wait_recommendation
 
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 model, vehicle_columns = load_model()
 
