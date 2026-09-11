@@ -420,3 +420,5 @@ Open finding: vt_Auto pushes predictions UP (counterintuitive)
 
 SHAP showed selecting Auto pushes price above baseline, which contradicts real-world intuition (autos are usually the cheapest option). Traced to likely cause: Auto is the only vehicle type with a night surcharge (1.5x, 10pm–5am), and real logged data is heavily night-skewed — so in the training data, "Auto" and "logged during a night surcharge" are entangled, and the model can't separate them without more daytime Auto data. Also possibly compounded by Auto's higher per_km (20 vs Mini's 12, an early guess). Deliberately NOT fixing by hand — expecting more daytime Auto logging to disentangle it on future retrains. (Same data-coverage root cause as the night-scarcity and midday-dead-zone findings, surfacing in another form.)
 ## 2026-09-09 — Set dashboard plan: build functional version first, deploy to Render, then a build-up design pass with an interactive clickable price graph. FastAPI + uvicorn backend chosen.
+
+Made design choices
