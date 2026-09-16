@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ForecastChart from './ForecastChart'
 
 function App() {
   const [pickup, setPickup] = useState('')
@@ -57,6 +58,7 @@ function App() {
               <p>{r.recommendation}</p>
             </div>
           ))}
+          <ForecastChart results={results.results} />
         </div>
       )}
     </div>
