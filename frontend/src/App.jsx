@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import ForecastChart from './ForecastChart'
-
+import { motion } from 'framer-motion'
 function App() {
   const [pickup, setPickup] = useState('')
   const [drop, setDrop] = useState('')
@@ -79,28 +79,37 @@ function App() {
 
         {/* Results */}
         {results && results.results && (
-          <div>
+          <motion.div
+          key={`${results.pickup}-${results.drop}`}
+          initial={{opacity: 0, y: 20}}
+          animate={{opacity: 1, y: 0}}
+          transition={{duration: 0.6, ease: "easeOut"}}
+          >
             <p className="text-slate-400 text-sm mb-6 text-center">
               {results.pickup} → {results.drop} &middot; {results.distance_km} km
             </p>
 
             <div className="grid sm:grid-cols-3 gap-4 mb-10">
-              {results.results.map((r) => (
-                <div
+              {results.results.map((r,i) => (
+                <motion.div
                   key={r.vehicle}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+                  whileHover={{ y: -4, borderColor: "rgba(129, 140, 248, 0.5)" }}
                   className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-xl"
                 >
                   <p className="text-slate-400 text-sm mb-1">{r.vehicle}</p>
                   <p className="text-2xl font-semibold mb-3">₹{r.current_price}</p>
                   <p className="text-sm text-indigo-300">{r.recommendation}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-xl">
               <ForecastChart results={results.results} />
             </div>
-          </div>
+          </motion.div>
         )}
 
       </div>
