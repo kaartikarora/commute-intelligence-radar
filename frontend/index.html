@@ -2,9 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+
+    <title>Commute Intelligence Radar — Bangalore ride price forecasts</title>
+    <meta
+      name="description"
+      content="Predict Auto, Non-AC and Premier AC ride prices across Bangalore, see the next four hours of surge, and know whether to book now or wait."
+    />
+
+    <!-- Paints the browser chrome (mobile address bar) to match the page, so
+         there is no bright strip above a dark app. -->
+    <meta name="theme-color" content="#05060e" />
+
+    <link rel="icon" type="image/svg+xml" href="/radar.svg" />
+
+    <!-- Open Graph: what a shared link looks like in WhatsApp / Slack / X. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Commute Intelligence Radar" />
+    <meta
+      property="og:description"
+      content="Bangalore ride price forecasts. Know when to book and when to wait."
+    />
+
+    <!-- preconnect opens the TCP + TLS handshake to the font servers while the
+         HTML is still parsing, so the font request itself starts sooner.
+         `crossorigin` is required on the fonts.gstatic.com one or the browser
+         opens a second, unshared connection and the hint is wasted. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>

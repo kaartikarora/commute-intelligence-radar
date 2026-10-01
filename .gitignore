@@ -219,7 +219,6 @@ __marimo__/
 
 # Generated data files - regenerate with data_generator.py, don't track in git
 training_data.csv
-real_prices.csv
 watched_routes.csv
 automatemanuallogger.txt
 uber_profile/
@@ -228,7 +227,6 @@ LEARNING_NOTES.md
 auto_logger.log
 next_run_after.txt
 forecast.png
-surge_model.pkl
 shap_summary.png
 shap_hour.png
 shap_distance.png
