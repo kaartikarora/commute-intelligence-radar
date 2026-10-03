@@ -8,7 +8,7 @@ from pricing import VEHICLE_TYPES
 def main():
     pickup_name = input("Pickup location: ").strip()
     drop_name = input("Drop location: ").strip()
-
+    
     pickup = geocode(pickup_name)
     drop = geocode(drop_name)
     if not pickup or not drop:
