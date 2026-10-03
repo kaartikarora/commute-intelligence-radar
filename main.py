@@ -30,6 +30,7 @@ def main():
     now = datetime.now()
     hour = now.hour + now.minute / 60
     is_weekend = now.weekday() >= 5
+    is_friday = now.weekday() == 4
 
     print(f"\n{pickup_name} -> {drop_name}")
     print(f"Road distance: {distance:.1f} km")
@@ -38,7 +39,7 @@ def main():
     from pricing import DISPLAY_NAMES   # (or add to the existing pricing import at the top)
 
     for vehicle_type in VEHICLE_TYPES:
-        price = predict_price(model, vehicle_columns, distance, hour, is_weekend, vehicle_type)
+        price = predict_price(model, distance, hour, is_weekend, is_friday, vehicle_type)
         label = DISPLAY_NAMES[vehicle_type]
         print(f"  {label:<12} ~Rs.{price:.0f}")
 

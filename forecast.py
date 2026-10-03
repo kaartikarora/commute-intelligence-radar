@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from features import load_features
 import matplotlib
 matplotlib.use("Agg")   # save-to-file mode, no popup (important on Windows)
 import matplotlib.pyplot as plt
@@ -17,7 +16,7 @@ WAIT_LIMIT_MINUTES = 60  # only recommend waiting up to this long
 SAVINGS_RATE = 1.0    # Rs. saving required per minute of waiting -- tuned by feel for Bangalore, not a sourced number
 
 
-def build_forecast(model, vehicle_columns, distance, now):
+def build_forecast(model, distance, now):
     """Predict price at each step from PAST_HOURS ago to GRAPH_HOURS ahead, per vehicle type."""
     forecast = {vt: [] for vt in VEHICLE_TYPES}
     start_time = now - timedelta(hours=PAST_HOURS)
@@ -28,8 +27,9 @@ def build_forecast(model, vehicle_columns, distance, now):
         t = start_time + timedelta(minutes=i * STEP_MINUTES)
         hour = t.hour + t.minute / 60
         is_weekend = t.weekday() >= 5
+        is_friday = t.weekday() == 4
         for vt in VEHICLE_TYPES:
-            price = predict_price(model, vehicle_columns, distance, hour, is_weekend, vt)
+            price = predict_price(model, distance, hour, is_weekend, is_friday, vt)
             forecast[vt].append((t, price))
     return forecast
 
@@ -138,7 +138,7 @@ def main():
 
     model, vehicle_columns = load_model()
     now = datetime.now()
-    forecast = build_forecast(model, vehicle_columns, distance, now)
+    forecast = build_forecast(model, distance, now)
 
     print(f"\n{pickup_name} -> {drop_name} ({distance:.1f} km)\n")
     for vt in VEHICLE_TYPES:

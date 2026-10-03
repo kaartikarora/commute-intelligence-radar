@@ -7,7 +7,7 @@ from features import load_features
 from model import load_model
 def explain():
     model, vehicle_columns=load_model()
-    X,y,_=load_features()
+    X,y,_,_=load_features()
 
     #shap's method for tree based models
     explainer=shap.TreeExplainer(model)

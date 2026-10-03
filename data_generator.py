@@ -35,13 +35,21 @@ def generate_row(rng):
 
     hour = dt.hour + dt.minute / 60
     vehicle_type = rng.choice(list(VEHICLE_TYPES.keys()))
-    result = estimate_price(distance, hour, dt.weekday() >= 5, rng.random() < 0.1, vehicle_type, dt.weekday() == 4)
+    is_rainy = rng.random() < 0.1
+    # is_rainy and "is it Friday" both change estimate_price()'s output below,
+    # but were never saved to the CSV -- meaning the model was being trained
+    # on prices whose variation it had no matching feature to explain for
+    # ~10% of rows. is_rainy is captured now; is_friday is deliberately left
+    # out of the saved row too, since features.py derives it from timestamp
+    # for both synthetic and real data instead (see features.py).
+    result = estimate_price(distance, hour, dt.weekday() >= 5, is_rainy, vehicle_type, dt.weekday() == 4)
 
     return {
         "timestamp": dt.isoformat(timespec="minutes"),
         "distance_km": round(distance, 2),
         "hour": round(hour, 2),
         "is_weekend": dt.weekday() >= 5,
+        "is_rainy": is_rainy,
         "vehicle_type": vehicle_type,
         "price": result["price"],
         "surge": result["surge"],

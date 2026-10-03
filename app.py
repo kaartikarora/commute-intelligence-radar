@@ -45,7 +45,7 @@ def predict(req: RouteRequest):
         return {"error": "Could not find a drivable route."}
 
     now = datetime.now()
-    forecast = build_forecast(model, vehicle_columns, distance, now)
+    forecast = build_forecast(model, distance, now)
 
     # build the response: for each vehicle, current price + wait rec + the full curve
     results = []

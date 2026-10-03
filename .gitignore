@@ -226,6 +226,7 @@ bangalore_hubs.csv
 LEARNING_NOTES.md
 auto_logger.log
 next_run_after.txt
+last_big_shuffle.txt
 forecast.png
 shap_summary.png
 shap_hour.png

@@ -252,6 +252,11 @@ STATE_FILE = "next_run_after.txt"
 MIN_GAP_HOURS = 2
 MAX_GAP_HOURS = 3
 
+BIG_SHUFFLE_STATE_FILE = "last_big_shuffle.txt"
+BIG_SHUFFLE_MIN_HOURS = 1
+BIG_SHUFFLE_MAX_HOURS = 12
+BIG_SHUFFLE_INTERVAL_DAYS = 7
+
 
 def should_run_now():
     """Checks STATE_FILE for the saved 'don't run again until' time.
@@ -272,14 +277,49 @@ def should_run_now():
     return datetime.now() >= next_run_after
 
 
-def schedule_next_run():
-    """Picks a fresh random gap (2-3 hours) from now and saves it.
+def _due_for_big_shuffle():
+    """Checks whether 7+ days have passed since the last big shuffle.
 
-    Because each cycle draws independently from the last ACTUAL run
-    time (not a fixed daily clock reference), real run times drift
-    differently day to day instead of following the same grid.
+    Same fail-open philosophy as should_run_now(): missing or corrupt
+    state is treated as "due", so a broken file can't silently disable
+    the weekly reshuffle forever.
     """
-    gap_hours = random.uniform(MIN_GAP_HOURS, MAX_GAP_HOURS)
+    if not os.path.exists(BIG_SHUFFLE_STATE_FILE):
+        return True
+
+    try:
+        with open(BIG_SHUFFLE_STATE_FILE, "r") as f:
+            last_shuffle = datetime.fromisoformat(f.read().strip())
+    except (ValueError, OSError):
+        return True
+
+    return datetime.now() - last_shuffle >= timedelta(days=BIG_SHUFFLE_INTERVAL_DAYS)
+
+
+def schedule_next_run():
+    """Picks the next run time and saves it.
+
+    Normally a fresh random gap (2-3 hours) from now, so real run times
+    drift day to day instead of following a fixed grid. But the 24-hour
+    day divides almost evenly by that ~2.5-hour average gap (24 / 2.5 =
+    9.6), so the drift is SLOW -- the schedule nearly repeats itself
+    each day, with only gradual phase movement. That skews real-data
+    coverage toward whichever hours the phase happens to be sitting on
+    for days at a stretch (confirmed empirically: hour-of-day real-data
+    counts ranged from 18 to 117 -- a 6.5x spread -- across one month
+    of logging).
+
+    Once roughly every 7 days, a much wider gap (1-12 hours) is used
+    instead, deliberately breaking that slow drift so the schedule
+    can't get stuck favoring the same hours for too long.
+    """
+    if _due_for_big_shuffle():
+        gap_hours = random.uniform(BIG_SHUFFLE_MIN_HOURS, BIG_SHUFFLE_MAX_HOURS)
+        with open(BIG_SHUFFLE_STATE_FILE, "w") as f:
+            f.write(datetime.now().isoformat())
+    else:
+        gap_hours = random.uniform(MIN_GAP_HOURS, MAX_GAP_HOURS)
+
     next_run_after = datetime.now() + timedelta(hours=gap_hours)
 
     with open(STATE_FILE, "w") as f:
