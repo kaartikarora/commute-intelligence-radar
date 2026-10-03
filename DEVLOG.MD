@@ -422,3 +422,74 @@ SHAP showed selecting Auto pushes price above baseline, which contradicts real-w
 ## 2026-09-09 — Set dashboard plan: build functional version first, deploy to Render, then a build-up design pass with an interactive clickable price graph. FastAPI + uvicorn backend chosen.
 
 Made design choices
+
+## 2026-09-10 to 2026-09-17 — The dashboard: FastAPI backend, React frontend, animated
+
+### Backend: thin wrapper, not a rewrite
+
+`app.py` deliberately does none of the actual work — it imports `geocode`/`is_in_blr` from `geocoding.py`, `get_road_distance_km` from `spatial.py`, `load_model`/`predict_price` from `model.py`, and `build_forecast`/`find_wait_recommendation` from `forecast.py`, and just orchestrates them behind a `POST /predict` endpoint. Same validation chain as `main.py`'s CLI version (geocode both ends → confirm both inside the Bangalore boundary → OSRM road distance → run the forecast), just returned as JSON instead of printed. The model is loaded once at import time (`model, vehicle_columns = load_model()` at module level), not per-request — reloading a pickle on every call would be pure waste since the model doesn't change between requests.
+
+One deliberate response-shape decision: a bad route (unfindable location, outside Bangalore, no drivable path) returns HTTP 200 with an `{"error": ...}` body, not a 4xx status. That pushed a small but real subtlety into the frontend later (see below): a successful HTTP response is not the same thing as a successful search.
+
+### Frontend: Vite + React + Tailwind v4 + Framer Motion + Recharts
+
+Scaffolded with Vite, not Create React App (deprecated) or Next.js (its SSR/routing machinery buys nothing for a single-page tool with no SEO requirement). Tailwind v4 registers as `@tailwindcss/vite` directly in `vite.config.js` rather than the old `tailwind.config.js` + PostCSS pipeline — v4's config now lives in CSS itself.
+
+Component breakdown (`frontend/src/components/`): `Aurora` (the animated background), `Intro` (splash screen shown once on load, skipped entirely if the OS has "reduce motion" set via `useReducedMotion`), `SearchPanel` (the pickup/drop form, including one-click sample routes and hub-name autocomplete), `VehicleCard` (one per vehicle type, with an entrance stagger), `States` (the empty/loading-skeleton/error states), `AnimatedNumber` (price count-up).
+
+**State design:** `App.jsx` uses one `status` string (`idle | loading | success | error`) instead of separate `loading`/`results`/`error` booleans — three booleans can represent eight combinations, five of which are nonsense ("loading AND errored AND has results"). A single status value can only ever hold one of the four states that actually exist, so invalid combinations aren't just avoided, they're impossible to construct.
+
+**Request cancellation:** every search creates an `AbortController` and stores it in a ref; a new search aborts whatever request is still in flight first. Without this, a slow first request can resolve *after* a faster second one and silently overwrite newer results with stale ones — a real race condition, not a hypothetical one, given the geocoding/OSRM calls have variable latency.
+
+**Error handling distinguishes three failure types**, each needing different user-facing advice: the backend answered 200 but with an `{"error": ...}` body (bad route — not a bug, just "try a different place name"), the backend answered a real HTTP error like 500 (something broke server-side), or the fetch never completed at all (network down, CORS blocked, DNS failure — different advice again: "can't reach the service" rather than "the service said no").
+
+### Recharts graph + Framer Motion pass
+
+`ForecastChart.jsx` plots all three vehicle types as separate lines with hover tooltips, replacing the static `matplotlib` PNG the CLI version used — same `build_forecast` data, now interactive instead of a flat image. Framer Motion added in a separate, later pass: staggered card entrance (`VehicleCard`s animate in with an index-based delay rather than all at once), a hover lift on each card, and `AnimatePresence` managing the idle/loading/success/error state transitions so an outgoing state finishes its exit animation before the incoming one starts (`mode="wait"`) instead of the two crossfading into each other.
+
+### Bugs hit
+
+| Bug | Symptom | Fix |
+|---|---|---|
+| Tailwind v4 registered the old way (PostCSS config) | Utility classes had no effect — dashboard rendered unstyled | Switched to Tailwind v4's native Vite plugin: `import tailwindcss from '@tailwindcss/vite'`, added to `vite.config.js`'s `plugins` array directly |
+
+### Where it stood at the end of this stretch
+
+A fully working, locally-running dashboard: real backend, real model, animated frontend, nothing deployed yet.
+
+## 2026-10-01 to 2026-10-02 — Shipping it: the gap between "works on my machine" and "works on the internet"
+
+### Context
+
+Everything ran correctly locally. Deploying it surfaced three problems that never show up in local development, because local development never does a fresh checkout — each one would have silently broken the first real deploy if caught *during* the deploy instead of before it.
+
+### The three real blockers, found by actually trying to deploy rather than assuming it would work
+
+1. **`requirements.txt` was UTF-16, not UTF-8.** PowerShell's `pip freeze > requirements.txt` redirects through `Out-File`'s default encoding, which is UTF-16 on Windows PowerShell — Bash's `>` would have written UTF-8 without issue. Render's `pip install -r requirements.txt` expects plain text and would have failed the build outright. Fixed with `pip freeze | Out-File -Encoding ascii requirements.txt` — ASCII is a strict subset of UTF-8 and every line in the file (package==version) is pure ASCII anyway.
+2. **`surge_model.pkl`, `training_data.csv`, and `real_prices.csv` were all in `.gitignore`.** Reasonable for local dev (two of the three are script-regeneratable, so why bloat the repo), but fatal for deployment: `app.py` calls `load_model()` at import time, so a fresh `git clone` with no `.pkl` file crashes the entire app before it serves a single request. Worse, `real_prices.csv` is **not** regeneratable — it's months of real logged Bangalore fares, the one irreplaceable asset this whole project produced, and it only existed on one laptop. Fixed by removing `real_prices.csv` and `surge_model.pkl` from `.gitignore` and committing both (chose shipping the trained `.pkl` directly over retraining on every Render build — simpler for now, with the tradeoff of needing a manual recommit after future retrains).
+3. **CORS was hardcoded to `http://localhost:5173`.** Had to be the last fix, not the first — it needed the frontend's real deployed URL, which didn't exist until the frontend was actually deployed.
+
+### Deploy sequence
+
+Backend as a Render **Web Service** (Python 3, `pip install -r requirements.txt` / `uvicorn app:app --host 0.0.0.0 --port $PORT`, Singapore region for lowest latency to Bangalore, free tier). Frontend as a Render **Static Site** (Root Directory `frontend`, `npm install && npm run build`, publish dir `dist`), with `VITE_API_URL` set to the backend's URL as a build-time environment variable — Vite inlines `import.meta.env.VITE_*` values into the bundle at build time, so this has to be set *before* the frontend builds, not after.
+
+Also ran `npm audit fix` on a real "1 high severity vulnerability" finding (`brace-expansion`, a transitive dependency of the lint tooling, not anything that ships to a visitor's browser — low real risk, but a free, non-breaking fix was available, so took it) and committed the updated `package-lock.json`.
+
+### The deploy that looked broken but wasn't
+
+After pushing the CORS fix, the backend's own Render dashboard page vanished from the main services list — only the frontend showed up, account confirmed correct, no second workspace. But the backend was still answering real requests the entire time (confirmed by comparing response headers: a genuinely nonexistent Render hostname returns `x-render-routing: no-server`, while the real backend URL returned `x-render-origin-server: uvicorn` with live-computed forecast data, proving Render's own routing layer still had it registered and running). Turned out to be a stale dashboard list view — the service reappeared after navigating to it directly rather than trusting the list page. Lesson: a dashboard UI and the actual infrastructure it's supposed to reflect are two different systems, and they can disagree.
+
+### Live
+
+- Backend: `https://commute-intelligence-radar.onrender.com`
+- Frontend: `https://commute-intelligence-radar-frontend.onrender.com`
+
+Verified end to end from the public internet (not just localhost): both endpoints respond correctly, the CORS preflight returns the right `Access-Control-Allow-Origin`, and the deployed JS bundle was confirmed (by grepping the built file) to have the real backend URL baked in rather than `localhost:8000`.
+
+### Open items for next session
+
+- [ ] `DEVLOG.MD` itself had drifted — this entry is catching it up across three weeks of actual work in one pass; keep it closer to real-time going forward
+- [ ] Production JS bundle is 741 KB (224 KB gzipped) — Vite's own build warning suggests code-splitting via dynamic `import()`; not urgent at current traffic levels
+- [ ] Free-tier Render services cold-start after ~15 minutes idle (30-60s first-request delay) — acceptable for a portfolio project, worth knowing before sharing the link somewhere with real traffic
+- [ ] Resume's "Commute Intelligence Radar" entry can now honestly add a live-demo link and "deployed to Render" — was explicitly deferred earlier until actually true, and now it is
+- [ ] OSM/ODbL attribution note for `bangalore_hubs.csv` — still not added, carried over from several sessions ago
