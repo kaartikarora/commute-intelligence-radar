@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 import requests
 from playwright.sync_api import sync_playwright
+from playwright.sync_api import Error as PlaywrightError
 
 from geocoding import geocode
 from pricing import VEHICLE_TYPES
@@ -190,7 +191,22 @@ def fetch_uber_products(pickup_lat, pickup_lon, drop_lat, drop_lon):
         page = context.new_page()
         page.goto(UBER_URL)
 
-        result = page.evaluate(_FETCH_PRODUCTS_JS, {"headers": UBER_HEADERS, "body": body})
+        try:
+            result = page.evaluate(_FETCH_PRODUCTS_JS, {"headers": UBER_HEADERS, "body": body})
+        except PlaywrightError as e:
+            # The in-page fetch() itself can reject (network error, the
+            # page never finishing its load, a connectivity blip) instead
+            # of resolving with a non-200 status -- that used to crash the
+            # whole script with a raw traceback before schedule_next_run()
+            # ever ran, which meant should_run_now() stayed "due" and the
+            # next 15-minute poll just hit the exact same failure again,
+            # forever, instead of backing off. Treating it as a session
+            # problem (same as an auth error) is the most useful default --
+            # it isn't always literally an expired session, but the fix a
+            # human needs to try first is the same either way: re-run
+            # uber_session.login() and check the connection.
+            context.close()
+            raise UberAuthError(f"Browser fetch failed before getting a response: {e}")
 
         context.close()
 

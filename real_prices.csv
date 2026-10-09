@@ -1689,3 +1689,263 @@ timestamp,pickup,dropoff,distance_km,hour,is_weekend,is_rainy,vehicle_type,price
 2026-10-03T17:37,Channama Layout,Brookes Haven Layout,27.06,17.62,True,False,Auto,465.16
 2026-10-03T17:37,Channama Layout,Brookes Haven Layout,27.06,17.62,True,False,Mini,522.66
 2026-10-03T17:37,Channama Layout,Brookes Haven Layout,27.06,17.62,True,False,Sedan,672.93
+2026-10-03T20:36,Nataraja Layout,Hulimavu,3.73,20.6,True,False,Auto,99.55
+2026-10-03T20:36,Nataraja Layout,Hulimavu,3.73,20.6,True,False,Mini,115.62
+2026-10-03T20:36,Nataraja Layout,Hulimavu,3.73,20.6,True,False,Sedan,150.37
+2026-10-03T20:37,Munniswamy Garden,Ideal Homes Layout,15.67,20.62,True,False,Auto,282.12
+2026-10-03T20:37,Munniswamy Garden,Ideal Homes Layout,15.67,20.62,True,False,Mini,302.86
+2026-10-03T20:37,Munniswamy Garden,Ideal Homes Layout,15.67,20.62,True,False,Sedan,392.24
+2026-10-03T20:37,BEML Layout 7th Phase,Vivekananda Nagar,21.25,20.62,True,False,Auto,404.68
+2026-10-03T20:37,BEML Layout 7th Phase,Vivekananda Nagar,21.25,20.62,True,False,Mini,408.05
+2026-10-03T20:37,BEML Layout 7th Phase,Vivekananda Nagar,21.25,20.62,True,False,Sedan,523.17
+2026-10-03T22:06,Yellappa Chetty Layout,Rajajinagar 2nd Block,9.29,22.1,True,False,Auto,254.88
+2026-10-03T22:06,Yellappa Chetty Layout,Rajajinagar 2nd Block,9.29,22.1,True,False,Mini,290.85
+2026-10-03T22:06,Yellappa Chetty Layout,Rajajinagar 2nd Block,9.29,22.1,True,False,Sedan,371.33
+2026-10-03T22:07,Srikantan Layout,Vimanapura,13.14,22.12,True,False,Auto,361.8
+2026-10-03T22:07,Srikantan Layout,Vimanapura,13.14,22.12,True,False,Mini,325.11
+2026-10-03T22:07,Srikantan Layout,Vimanapura,13.14,22.12,True,False,Sedan,422.74
+2026-10-03T22:07,Hosahalli Palya,Ganigarpet,27.53,22.12,True,False,Mini,498.71
+2026-10-03T22:07,Hosahalli Palya,Ganigarpet,27.53,22.12,True,False,Auto,787.59
+2026-10-04T00:32,Konena Agrahara,Panathur,8.17,0.53,True,False,Mini,251.53
+2026-10-04T00:32,Konena Agrahara,Panathur,8.17,0.53,True,False,Auto,281.07
+2026-10-04T00:32,Konena Agrahara,Panathur,8.17,0.53,True,False,Sedan,322.06
+2026-10-04T00:32,Ranasingpete,Mico Arekere Layout 1st Stage,11.56,0.53,True,False,Mini,471.6
+2026-10-04T00:32,Ranasingpete,Mico Arekere Layout 1st Stage,11.56,0.53,True,False,Auto,586.44
+2026-10-04T00:32,Ranasingpete,Mico Arekere Layout 1st Stage,11.56,0.53,True,False,Sedan,606.21
+2026-10-04T00:32,Kalyan Nagar,Nagarabhavi 9th Block,20.85,0.53,True,False,Mini,326.21
+2026-10-04T00:32,Kalyan Nagar,Nagarabhavi 9th Block,20.85,0.53,True,False,Auto,595.89
+2026-10-04T00:32,Kalyan Nagar,Nagarabhavi 9th Block,20.85,0.53,True,False,Sedan,422.35
+2026-10-04T02:52,Xavier Layout,Ganigarpet,4.29,2.87,True,False,Auto,113.94
+2026-10-04T02:52,Xavier Layout,Ganigarpet,4.29,2.87,True,False,Mini,117.37
+2026-10-04T02:52,Xavier Layout,Ganigarpet,4.29,2.87,True,False,Sedan,154.44
+2026-10-04T02:52,Hebbal,Maruthi Nagar,16.33,2.87,True,False,Mini,258.63
+2026-10-04T02:52,Hebbal,Maruthi Nagar,16.33,2.87,True,False,Auto,441.72
+2026-10-04T02:52,Hebbal,Maruthi Nagar,16.33,2.87,True,False,Sedan,336.34
+2026-10-04T02:52,Kothnur Lake View Layout,Kareem Nagar,19.5,2.87,True,False,Mini,310.87
+2026-10-04T02:52,Kothnur Lake View Layout,Kareem Nagar,19.5,2.87,True,False,Auto,538.65
+2026-10-04T02:52,Kothnur Lake View Layout,Kareem Nagar,19.5,2.87,True,False,Sedan,400.18
+2026-10-04T05:06,Ranasingpete,Guttahalli,5.07,5.1,True,False,Auto,108.35
+2026-10-04T05:06,Ranasingpete,Guttahalli,5.07,5.1,True,False,Mini,313.31
+2026-10-04T05:06,Ranasingpete,Guttahalli,5.07,5.1,True,False,Sedan,410.35
+2026-10-04T05:07,HMT Layout,Adithyanagara,10.95,5.12,True,False,Auto,219.06
+2026-10-04T05:07,HMT Layout,Adithyanagara,10.95,5.12,True,False,Mini,205.78
+2026-10-04T05:07,HMT Layout,Adithyanagara,10.95,5.12,True,False,Sedan,266.77
+2026-10-04T05:07,Doddagollarahatti,Arkavathy Layout 20th Block,26.26,5.12,True,False,Mini,365.21
+2026-10-04T05:07,Doddagollarahatti,Arkavathy Layout 20th Block,26.26,5.12,True,False,Auto,477.62
+2026-10-04T05:07,Doddagollarahatti,Arkavathy Layout 20th Block,26.26,5.12,True,False,Sedan,474.9
+2026-10-04T07:22,RMV 2nd Stage 1st Block,Singapura,9.69,7.37,True,False,Auto,160.02
+2026-10-04T07:22,RMV 2nd Stage 1st Block,Singapura,9.69,7.37,True,False,Mini,173.29
+2026-10-04T07:22,RMV 2nd Stage 1st Block,Singapura,9.69,7.37,True,False,Sedan,223.47
+2026-10-04T07:22,Konena Agrahara,Lakkasandra,10.72,7.37,True,False,Auto,191.88
+2026-10-04T07:22,Konena Agrahara,Lakkasandra,10.72,7.37,True,False,Mini,254.76
+2026-10-04T07:22,Konena Agrahara,Lakkasandra,10.72,7.37,True,False,Sedan,326.6
+2026-10-04T07:22,MICO Layout,Nadaprabhu Kempegowda Layout,25.64,7.37,True,False,Mini,540.06
+2026-10-04T07:22,MICO Layout,Nadaprabhu Kempegowda Layout,25.64,7.37,True,False,Auto,521.14
+2026-10-04T07:22,MICO Layout,Nadaprabhu Kempegowda Layout,25.64,7.37,True,False,Sedan,668.48
+2026-10-04T09:51,HBR Layout 3rd Block,Papanna Layout,7.6,9.85,True,False,Auto,137.34
+2026-10-04T09:51,HBR Layout 3rd Block,Papanna Layout,7.6,9.85,True,False,Mini,162.94
+2026-10-04T09:51,HBR Layout 3rd Block,Papanna Layout,7.6,9.85,True,False,Sedan,211.65
+2026-10-04T09:51,GM Palya,Jaladarshini Layout,15.33,9.85,True,False,Auto,347.61
+2026-10-04T09:51,GM Palya,Jaladarshini Layout,15.33,9.85,True,False,Mini,307.08
+2026-10-04T09:51,GM Palya,Jaladarshini Layout,15.33,9.85,True,False,Sedan,394.56
+2026-10-04T09:51,NHCS Layout,Judicial Layout,20.07,9.85,True,False,Mini,311.38
+2026-10-04T09:51,NHCS Layout,Judicial Layout,20.07,9.85,True,False,Auto,356.44
+2026-10-04T09:51,NHCS Layout,Judicial Layout,20.07,9.85,True,False,Sedan,400.43
+2026-10-04T12:06,Chelekere,Maheshwari Nagar,8.71,12.1,True,False,Auto,155.16
+2026-10-04T12:06,Chelekere,Maheshwari Nagar,8.71,12.1,True,False,Mini,184.67
+2026-10-04T12:06,Chelekere,Maheshwari Nagar,8.71,12.1,True,False,Sedan,240.19
+2026-10-04T12:07,DK Naik Nagar,Telecom Layout,10.11,12.12,True,False,Auto,191.34
+2026-10-04T12:07,DK Naik Nagar,Telecom Layout,10.11,12.12,True,False,Mini,229.81
+2026-10-04T12:07,DK Naik Nagar,Telecom Layout,10.11,12.12,True,False,Sedan,295.85
+2026-10-04T12:07,Gunjur,Ranasingpete,23.08,12.12,True,False,Auto,407.88
+2026-10-04T12:07,Gunjur,Ranasingpete,23.08,12.12,True,False,Mini,403.07
+2026-10-04T12:07,Gunjur,Ranasingpete,23.08,12.12,True,False,Sedan,516.89
+2026-10-04T15:06,Anglo-Indian Quarters,Munirangappa Layout,8.2,15.1,True,True,Auto,193.86
+2026-10-04T15:06,Anglo-Indian Quarters,Munirangappa Layout,8.2,15.1,True,True,Mini,228.58
+2026-10-04T15:06,Anglo-Indian Quarters,Munirangappa Layout,8.2,15.1,True,True,Sedan,294.62
+2026-10-04T15:07,SR Layout,HMT Layout,14.39,15.12,True,True,Auto,275.4
+2026-10-04T15:07,SR Layout,HMT Layout,14.39,15.12,True,True,Mini,280.72
+2026-10-04T15:07,SR Layout,HMT Layout,14.39,15.12,True,True,Sedan,361.64
+2026-10-04T15:07,Kirloskar Layout,KFSC Layout,20.31,15.12,True,False,Auto,361.44
+2026-10-04T15:07,Kirloskar Layout,KFSC Layout,20.31,15.12,True,False,Mini,329.53
+2026-10-04T15:07,Kirloskar Layout,KFSC Layout,20.31,15.12,True,False,Sedan,427.36
+2026-10-04T18:24,Banashankari 2nd Stage,Rajendranagar,9.06,18.4,True,False,Auto,156.3
+2026-10-04T18:24,Banashankari 2nd Stage,Rajendranagar,9.06,18.4,True,False,Mini,279.7
+2026-10-04T18:24,Banashankari 2nd Stage,Rajendranagar,9.06,18.4,True,False,Sedan,358.41
+2026-10-04T18:24,Amarjyothi Nagara,Vigneshwara Nagara,13.94,18.4,True,False,Auto,283.08
+2026-10-04T18:24,Amarjyothi Nagara,Vigneshwara Nagara,13.94,18.4,True,False,Mini,325.11
+2026-10-04T18:24,Amarjyothi Nagara,Vigneshwara Nagara,13.94,18.4,True,False,Sedan,421.37
+2026-10-04T18:25,Balaji Layout,Kumara Park East,19.69,18.42,True,False,Auto,339.11
+2026-10-04T18:25,Balaji Layout,Kumara Park East,19.69,18.42,True,False,Mini,410.89
+2026-10-04T18:25,Balaji Layout,Kumara Park East,19.69,18.42,True,False,Sedan,523.86
+2026-10-04T21:21,Vannarapete,Annaniappa Layout,6.17,21.35,True,False,Auto,130.83
+2026-10-04T21:21,Vannarapete,Annaniappa Layout,6.17,21.35,True,False,Mini,166.51
+2026-10-04T21:21,Vannarapete,Annaniappa Layout,6.17,21.35,True,False,Sedan,216.83
+2026-10-04T21:21,Thippasandra,Prithvi Layout,14.36,21.35,True,False,Auto,289.49
+2026-10-04T21:21,Thippasandra,Prithvi Layout,14.36,21.35,True,False,Mini,289.54
+2026-10-04T21:21,Thippasandra,Prithvi Layout,14.36,21.35,True,False,Sedan,377.1
+2026-10-04T21:22,Ananda Nagara,Defence Layout,20.43,21.37,True,False,Mini,355.35
+2026-10-04T21:22,Ananda Nagara,Defence Layout,20.43,21.37,True,False,Auto,382.12
+2026-10-04T21:22,Ananda Nagara,Defence Layout,20.43,21.37,True,False,Sedan,462.38
+2026-10-04T23:36,Rajajinagara 1st N Block,VV Puram,8.26,23.6,True,False,Auto,216.81
+2026-10-04T23:36,Rajajinagara 1st N Block,VV Puram,8.26,23.6,True,False,Mini,180.64
+2026-10-04T23:36,Rajajinagara 1st N Block,VV Puram,8.26,23.6,True,False,Sedan,234.08
+2026-10-04T23:36,Padmanabha Nagar,D Group Employees Layout,11.38,23.6,True,False,Mini,247.47
+2026-10-04T23:36,Padmanabha Nagar,D Group Employees Layout,11.38,23.6,True,False,Auto,314.28
+2026-10-04T23:36,Padmanabha Nagar,D Group Employees Layout,11.38,23.6,True,False,Sedan,320.78
+2026-10-04T23:37,ISRO Layout,Darga Mohalla,22.49,23.62,True,False,Mini,452.55
+2026-10-04T23:37,ISRO Layout,Darga Mohalla,22.49,23.62,True,False,Sedan,587.53
+2026-10-04T23:37,ISRO Layout,Darga Mohalla,22.49,23.62,True,False,Auto,765.72
+2026-10-05T23:22,St. Thomas Town,Kadugondanahalli,3.85,23.37,False,False,Mini,202.9
+2026-10-05T23:22,St. Thomas Town,Kadugondanahalli,3.85,23.37,False,False,Auto,89.04
+2026-10-05T23:22,St. Thomas Town,Kadugondanahalli,3.85,23.37,False,False,Sedan,258.78
+2026-10-05T23:22,Siddapura,Subbayanapalya,15.35,23.37,False,False,Mini,290.18
+2026-10-05T23:22,Siddapura,Subbayanapalya,15.35,23.37,False,False,Auto,457.92
+2026-10-05T23:22,Siddapura,Subbayanapalya,15.35,23.37,False,False,Sedan,363.32
+2026-10-05T23:22,Gunjur Palya,Ramachandrapura,30.26,23.37,False,False,Mini,408.95
+2026-10-05T23:22,Gunjur Palya,Ramachandrapura,30.26,23.37,False,False,Sedan,518.64
+2026-10-05T23:22,Gunjur Palya,Ramachandrapura,30.26,23.37,False,False,Auto,827.01
+2026-10-06T02:21,Old Binnamangala,Rustum Bagh,4.37,2.35,False,False,Auto,122.04
+2026-10-06T02:21,Old Binnamangala,Rustum Bagh,4.37,2.35,False,False,Mini,114.9
+2026-10-06T02:21,Old Binnamangala,Rustum Bagh,4.37,2.35,False,False,Sedan,148.04
+2026-10-06T02:21,Singasandra,Jayanagar 8th Block,10.5,2.35,False,False,Mini,179.32
+2026-10-06T02:21,Singasandra,Jayanagar 8th Block,10.5,2.35,False,False,Auto,276.75
+2026-10-06T02:21,Singasandra,Jayanagar 8th Block,10.5,2.35,False,False,Sedan,228.77
+2026-10-06T02:21,HMT Watch Factory Colony,Lal Bahadur Shastri Nagar,21.85,2.35,False,False,Mini,346.3
+2026-10-06T02:21,HMT Watch Factory Colony,Lal Bahadur Shastri Nagar,21.85,2.35,False,False,Sedan,462.55
+2026-10-06T02:21,HMT Watch Factory Colony,Lal Bahadur Shastri Nagar,21.85,2.35,False,False,Auto,649.08
+2026-10-06T11:36,Fair Field Layout,Cholourpalya,7.21,11.6,False,False,Auto,112.7
+2026-10-06T11:36,Fair Field Layout,Cholourpalya,7.21,11.6,False,False,Mini,133.95
+2026-10-06T11:36,Fair Field Layout,Cholourpalya,7.21,11.6,False,False,Sedan,176.13
+2026-10-06T11:37,Arkavathy Layout 3rd Block,ITI Industrial Estate,17.11,11.62,False,,Auto,316.08
+2026-10-06T11:37,Arkavathy Layout 3rd Block,ITI Industrial Estate,17.11,11.62,False,,Mini,316.5
+2026-10-06T11:37,Arkavathy Layout 3rd Block,ITI Industrial Estate,17.11,11.62,False,,Sedan,405.4
+2026-10-06T11:37,Muniyappa Layout,Guni Agrahara,26.46,11.62,False,False,Mini,467.78
+2026-10-06T11:37,Muniyappa Layout,Guni Agrahara,26.46,11.62,False,False,Auto,568.94
+2026-10-06T11:37,Muniyappa Layout,Guni Agrahara,26.46,11.62,False,False,Sedan,606.95
+2026-10-06T17:52,JCR Layout,Maruthi Layout,5.69,17.87,False,False,Mini,217.78
+2026-10-06T17:52,JCR Layout,Maruthi Layout,5.69,17.87,False,False,Auto,141.28
+2026-10-06T17:52,JCR Layout,Maruthi Layout,5.69,17.87,False,False,Sedan,281.42
+2026-10-06T17:52,Pantarapalya,Maruthi Extension,10.66,17.87,False,False,Auto,183.65
+2026-10-06T17:52,Pantarapalya,Maruthi Extension,10.66,17.87,False,False,Mini,239.88
+2026-10-06T17:52,Pantarapalya,Maruthi Extension,10.66,17.87,False,False,Sedan,308.34
+2026-10-06T17:52,Anjanappa Garden,Bhuvaneshwari Nagara 2nd Stage,19.07,17.87,False,False,Auto,339.3
+2026-10-06T17:52,Anjanappa Garden,Bhuvaneshwari Nagara 2nd Stage,19.07,17.87,False,False,Mini,439.13
+2026-10-06T17:52,Anjanappa Garden,Bhuvaneshwari Nagara 2nd Stage,19.07,17.87,False,False,Sedan,555.76
+2026-10-07T06:36,Austin Town BDA Layout,Jagadish Nagar,8.22,6.6,False,False,Auto,179.71
+2026-10-07T06:36,Austin Town BDA Layout,Jagadish Nagar,8.22,6.6,False,False,Mini,169.42
+2026-10-07T06:36,Austin Town BDA Layout,Jagadish Nagar,8.22,6.6,False,False,Sedan,227.21
+2026-10-07T06:37,Tunga Nagar,Mariappanapalya,10.27,6.62,False,False,Auto,175.32
+2026-10-07T06:37,Tunga Nagar,Mariappanapalya,10.27,6.62,False,False,Mini,176.62
+2026-10-07T06:37,Tunga Nagar,Mariappanapalya,10.27,6.62,False,False,Sedan,237.73
+2026-10-07T06:37,Jnana Jyothi Nagara,Vijaya Bank Layout,20.36,6.62,False,,Auto,52.0
+2026-10-07T06:37,Jnana Jyothi Nagara,Vijaya Bank Layout,20.36,6.62,False,,Mini,479.69
+2026-10-07T06:37,Jnana Jyothi Nagara,Vijaya Bank Layout,20.36,6.62,False,,Sedan,615.22
+2026-10-07T09:21,Jayanagar 1st Block,Kumara Park West,8.41,9.35,False,False,Auto,158.68
+2026-10-07T09:21,Jayanagar 1st Block,Kumara Park West,8.41,9.35,False,False,Mini,227.26
+2026-10-07T09:21,Jayanagar 1st Block,Kumara Park West,8.41,9.35,False,False,Sedan,304.11
+2026-10-07T09:21,Fatima Layout,Rajendranagar,16.69,9.35,False,False,Auto,285.98
+2026-10-07T09:21,Fatima Layout,Rajendranagar,16.69,9.35,False,False,Mini,377.84
+2026-10-07T09:21,Fatima Layout,Rajendranagar,16.69,9.35,False,False,Sedan,506.99
+2026-10-07T09:22,Sulikunte,Chandra Layout,27.06,9.37,False,False,Auto,623.19
+2026-10-07T09:22,Sulikunte,Chandra Layout,27.06,9.37,False,False,Mini,1071.74
+2026-10-07T09:22,Sulikunte,Chandra Layout,27.06,9.37,False,False,Sedan,1291.91
+2026-10-07T13:22,Arab Lines,Lakshmipuram,4.62,13.37,False,True,Auto,90.66
+2026-10-07T13:22,Arab Lines,Lakshmipuram,4.62,13.37,False,True,Mini,114.92
+2026-10-07T13:22,Arab Lines,Lakshmipuram,4.62,13.37,False,True,Sedan,145.31
+2026-10-07T13:22,Jayanagar 7th Block,Post & Telegraph Layout,16.64,13.37,False,False,Auto,306.17
+2026-10-07T13:22,Jayanagar 7th Block,Post & Telegraph Layout,16.64,13.37,False,False,Mini,323.11
+2026-10-07T13:22,Jayanagar 7th Block,Post & Telegraph Layout,16.64,13.37,False,False,Sedan,407.45
+2026-10-07T13:22,Jayanagar 3 East Block,Wasa Layout,18.07,13.37,False,False,Auto,345.61
+2026-10-07T13:22,Jayanagar 3 East Block,Wasa Layout,18.07,13.37,False,False,Mini,336.36
+2026-10-07T13:22,Jayanagar 3 East Block,Wasa Layout,18.07,13.37,False,False,Sedan,412.84
+2026-10-07T19:36,Koramangala 8th Block,Mount Joy,7.68,19.6,False,False,Auto,197.16
+2026-10-07T19:36,Koramangala 8th Block,Mount Joy,7.68,19.6,False,False,Mini,271.21
+2026-10-07T19:36,Koramangala 8th Block,Mount Joy,7.68,19.6,False,False,Sedan,340.24
+2026-10-07T19:37,Anjanapura 8th Block,BTM 2nd Stage,13.48,19.62,False,False,Auto,231.33
+2026-10-07T19:37,Anjanapura 8th Block,BTM 2nd Stage,13.48,19.62,False,False,Mini,265.52
+2026-10-07T19:37,Anjanapura 8th Block,BTM 2nd Stage,13.48,19.62,False,False,Sedan,340.3
+2026-10-07T19:37,Bharathi Nagar,Prithvi Layout,18.15,19.62,False,,Auto,337.75
+2026-10-07T19:37,Bharathi Nagar,Prithvi Layout,18.15,19.62,False,,Mini,415.11
+2026-10-07T19:37,Bharathi Nagar,Prithvi Layout,18.15,19.62,False,,Sedan,520.8
+2026-10-07T21:52,Bhimajyothi LIC HBCS Layout,Guttahalli,5.98,21.87,False,False,Auto,102.13
+2026-10-07T21:52,Bhimajyothi LIC HBCS Layout,Guttahalli,5.98,21.87,False,False,Mini,132.77
+2026-10-07T21:52,Bhimajyothi LIC HBCS Layout,Guttahalli,5.98,21.87,False,False,Sedan,168.39
+2026-10-07T21:52,Mohan Kumar Nagar,NAL Layout,16.33,21.87,False,False,Mini,260.85
+2026-10-07T21:52,Mohan Kumar Nagar,NAL Layout,16.33,21.87,False,False,Auto,301.14
+2026-10-07T21:52,Mohan Kumar Nagar,NAL Layout,16.33,21.87,False,False,Sedan,326.86
+2026-10-07T21:52,Ramiah Reddy Layout,Narayana Nagara,30.03,21.87,False,False,Mini,399.57
+2026-10-07T21:52,Ramiah Reddy Layout,Narayana Nagara,30.03,21.87,False,False,Sedan,505.65
+2026-10-07T21:52,Ramiah Reddy Layout,Narayana Nagara,30.03,21.87,False,False,Auto,520.13
+2026-10-08T00:22,Chandra Layout,Ramachandra Pura,7.02,0.37,False,False,Mini,129.08
+2026-10-08T00:22,Chandra Layout,Ramachandra Pura,7.02,0.37,False,False,Auto,190.35
+2026-10-08T00:22,Chandra Layout,Ramachandra Pura,7.02,0.37,False,False,Sedan,165.95
+2026-10-08T00:22,KEB Layout,HAL Township,14.88,0.37,False,False,Mini,215.63
+2026-10-08T00:22,KEB Layout,HAL Township,14.88,0.37,False,False,Auto,406.08
+2026-10-08T00:22,KEB Layout,HAL Township,14.88,0.37,False,False,Sedan,279.67
+2026-10-08T00:22,Ramachandrapura,Sri Guru Raghavendra Nagar,22.7,0.37,False,False,Mini,328.76
+2026-10-08T00:22,Ramachandrapura,Sri Guru Raghavendra Nagar,22.7,0.37,False,False,Sedan,435.53
+2026-10-08T00:22,Ramachandrapura,Sri Guru Raghavendra Nagar,22.7,0.37,False,False,Auto,685.8
+2026-10-08T12:07,Papaiah Layout,Subbayanapalya,3.94,12.12,False,False,Auto,84.33
+2026-10-08T12:07,Papaiah Layout,Subbayanapalya,3.94,12.12,False,False,Sedan,149.14
+2026-10-08T12:07,Papaiah Layout,Subbayanapalya,3.94,12.12,False,False,Mini,115.39
+2026-10-08T12:07,Srinivas Nagar,Domlur Village,13.77,12.12,False,,Auto,223.2
+2026-10-08T12:07,Srinivas Nagar,Domlur Village,13.77,12.12,False,,Mini,247.0
+2026-10-08T12:07,Srinivas Nagar,Domlur Village,13.77,12.12,False,,Sedan,313.23
+2026-10-08T12:07,Vignananagar,Gandhi Bazaar,18.63,12.12,False,,Auto,343.87
+2026-10-08T12:07,Vignananagar,Gandhi Bazaar,18.63,12.12,False,,Mini,318.51
+2026-10-08T12:07,Vignananagar,Gandhi Bazaar,18.63,12.12,False,,Sedan,394.33
+2026-10-08T15:36,Lakkasandra,Canara Bank Colony,2.66,15.6,False,False,Auto,52.0
+2026-10-08T15:36,Lakkasandra,Canara Bank Colony,2.66,15.6,False,False,Mini,147.9
+2026-10-08T15:36,Lakkasandra,Canara Bank Colony,2.66,15.6,False,False,Sedan,186.44
+2026-10-08T15:37,Lake City,Doddanekundi,16.57,15.62,False,False,Auto,297.72
+2026-10-08T15:37,Lake City,Doddanekundi,16.57,15.62,False,False,Mini,288.12
+2026-10-08T15:37,Lake City,Doddanekundi,16.57,15.62,False,False,Sedan,357.15
+2026-10-08T15:37,RHB Colony,Manjunath Nagar,20.08,15.62,False,,Auto,376.68
+2026-10-08T15:37,RHB Colony,Manjunath Nagar,20.08,15.62,False,,Mini,356.24
+2026-10-08T15:37,RHB Colony,Manjunath Nagar,20.08,15.62,False,,Sedan,435.44
+2026-10-08T18:22,Meenakshi Nagar,High Grounds,7.68,18.37,False,False,Auto,119.7
+2026-10-08T18:22,Meenakshi Nagar,High Grounds,7.68,18.37,False,False,Mini,188.1
+2026-10-08T18:22,Meenakshi Nagar,High Grounds,7.68,18.37,False,False,Sedan,241.09
+2026-10-08T18:22,Kaggadasapura,Panathur,10.54,18.37,False,False,Auto,240.33
+2026-10-08T18:22,Kaggadasapura,Panathur,10.54,18.37,False,False,Mini,355.45
+2026-10-08T18:22,Kaggadasapura,Panathur,10.54,18.37,False,False,Sedan,442.57
+2026-10-08T18:22,Chettupalya,Belure Ambedkar Nagar,28.85,18.37,False,False,Auto,667.68
+2026-10-08T18:22,Chettupalya,Belure Ambedkar Nagar,28.85,18.37,False,False,Mini,616.85
+2026-10-08T18:22,Chettupalya,Belure Ambedkar Nagar,28.85,18.37,False,False,Sedan,760.86
+2026-10-08T21:22,Arkavathy Layout 4th Block,Kushal Nagar,8.58,21.37,False,False,Auto,154.71
+2026-10-08T21:22,Arkavathy Layout 4th Block,Kushal Nagar,8.58,21.37,False,False,Mini,169.69
+2026-10-08T21:22,Arkavathy Layout 4th Block,Kushal Nagar,8.58,21.37,False,False,Sedan,210.51
+2026-10-08T21:22,Coffee Board Layout,Gandhi Bazaar,16.65,21.37,False,False,Mini,248.72
+2026-10-08T21:22,Coffee Board Layout,Gandhi Bazaar,16.65,21.37,False,False,Auto,305.82
+2026-10-08T21:22,Coffee Board Layout,Gandhi Bazaar,16.65,21.37,False,False,Sedan,311.25
+2026-10-08T21:22,Konanakunte,Fatima Layout,23.07,21.37,False,False,Mini,371.34
+2026-10-08T21:22,Konanakunte,Fatima Layout,23.07,21.37,False,False,Auto,485.28
+2026-10-08T21:22,Konanakunte,Fatima Layout,23.07,21.37,False,False,Sedan,460.22
+2026-10-09T02:07,EPIP Zone,KR Puram,7.49,2.12,False,False,Mini,169.12
+2026-10-09T02:07,EPIP Zone,KR Puram,7.49,2.12,False,False,Auto,252.18
+2026-10-09T02:07,EPIP Zone,KR Puram,7.49,2.12,False,False,Sedan,212.96
+2026-10-09T02:07,Nagarabhavi,Siddapura,12.29,2.12,False,False,Mini,211.17
+2026-10-09T02:07,Nagarabhavi,Siddapura,12.29,2.12,False,False,Auto,372.33
+2026-10-09T02:07,Nagarabhavi,Siddapura,12.29,2.12,False,False,Sedan,273.89
+2026-10-09T02:07,Gokula,Yarappana Bande,20.17,2.12,False,False,Mini,286.9
+2026-10-09T02:07,Gokula,Yarappana Bande,20.17,2.12,False,False,Auto,567.54
+2026-10-09T02:07,Gokula,Yarappana Bande,20.17,2.12,False,False,Sedan,364.06
+2026-10-09T05:07,Bangarappa Nagar,Bendre Nagar,7.77,5.12,False,False,Auto,125.46
+2026-10-09T05:07,Bangarappa Nagar,Bendre Nagar,7.77,5.12,False,False,Mini,145.1
+2026-10-09T05:07,Bangarappa Nagar,Bendre Nagar,7.77,5.12,False,False,Sedan,184.76
+2026-10-09T05:07,Subrahmanya Nagar,Jakkur,14.28,5.12,False,False,Auto,241.02
+2026-10-09T05:07,Subrahmanya Nagar,Jakkur,14.28,5.12,False,False,Mini,213.88
+2026-10-09T05:07,Subrahmanya Nagar,Jakkur,14.28,5.12,False,False,Sedan,278.72
+2026-10-09T05:07,Nanjappa Garden,Anjanapura 1st Block,27.49,5.12,False,False,Mini,362.5
+2026-10-09T05:07,Nanjappa Garden,Anjanapura 1st Block,27.49,5.12,False,False,Auto,490.01
+2026-10-09T05:07,Nanjappa Garden,Anjanapura 1st Block,27.49,5.12,False,False,Sedan,474.83
+2026-10-09T08:06,Dooravaninagar,Corporation Colony,9.83,8.1,False,False,Auto,228.98
+2026-10-09T08:06,Dooravaninagar,Corporation Colony,9.83,8.1,False,False,Mini,316.43
+2026-10-09T08:06,Dooravaninagar,Corporation Colony,9.83,8.1,False,False,Sedan,400.63
+2026-10-09T08:06,Kadiranpalaya,Devarabeesanahalli,14.76,8.1,False,False,Auto,255.63
+2026-10-09T08:06,Kadiranpalaya,Devarabeesanahalli,14.76,8.1,False,False,Mini,296.38
+2026-10-09T08:06,Kadiranpalaya,Devarabeesanahalli,14.76,8.1,False,False,Sedan,505.04
+2026-10-09T08:06,Krishna Reddy Colony,Mathru Layout,23.48,8.1,False,False,Auto,407.56
+2026-10-09T08:06,Krishna Reddy Colony,Mathru Layout,23.48,8.1,False,False,Mini,397.2
+2026-10-09T08:06,Krishna Reddy Colony,Mathru Layout,23.48,8.1,False,False,Sedan,614.81

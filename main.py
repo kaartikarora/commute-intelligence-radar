@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from geocoding import geocode, is_in_blr
-from spatial import get_road_distance_km
+from spatial import get_road_distance_km, to_h3
 from model import load_model, predict_price
 from pricing import VEHICLE_TYPES
+from features import HUB_CELL_RESOLUTION
 
 def main():
     pickup_name = input("Pickup location: ").strip()
@@ -31,6 +32,8 @@ def main():
     hour = now.hour + now.minute / 60
     is_weekend = now.weekday() >= 5
     is_friday = now.weekday() == 4
+    pickup_cell = to_h3(pickup[0], pickup[1], resolution=HUB_CELL_RESOLUTION)
+    drop_cell = to_h3(drop[0], drop[1], resolution=HUB_CELL_RESOLUTION)
 
     print(f"\n{pickup_name} -> {drop_name}")
     print(f"Road distance: {distance:.1f} km")
@@ -39,7 +42,8 @@ def main():
     from pricing import DISPLAY_NAMES   # (or add to the existing pricing import at the top)
 
     for vehicle_type in VEHICLE_TYPES:
-        price = predict_price(model, distance, hour, is_weekend, is_friday, vehicle_type)
+        price = predict_price(model, distance, hour, is_weekend, is_friday, vehicle_type,
+                               pickup_cell=pickup_cell, drop_cell=drop_cell)
         label = DISPLAY_NAMES[vehicle_type]
         print(f"  {label:<12} ~Rs.{price:.0f}")
 

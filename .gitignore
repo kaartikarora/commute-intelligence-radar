@@ -223,6 +223,7 @@ watched_routes.csv
 automatemanuallogger.txt
 uber_profile/
 bangalore_hubs.csv
+hub_coords_cache.csv
 LEARNING_NOTES.md
 auto_logger.log
 next_run_after.txt

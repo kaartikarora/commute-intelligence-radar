@@ -4,9 +4,10 @@ matplotlib.use("Agg")   # save-to-file mode, no popup (important on Windows)
 import matplotlib.pyplot as plt
 
 from geocoding import geocode, is_in_blr
-from spatial import get_road_distance_km
+from spatial import get_road_distance_km, to_h3
 from model import load_model, predict_price
 from pricing import VEHICLE_TYPES, DISPLAY_NAMES
+from features import HUB_CELL_RESOLUTION
 
 # --- tunable constants ---
 GRAPH_HOURS = 4          # how far ahead the graph looks
@@ -16,8 +17,19 @@ WAIT_LIMIT_MINUTES = 60  # only recommend waiting up to this long
 SAVINGS_RATE = 1.0    # Rs. saving required per minute of waiting -- tuned by feel for Bangalore, not a sourced number
 
 
-def build_forecast(model, distance, now):
-    """Predict price at each step from PAST_HOURS ago to GRAPH_HOURS ahead, per vehicle type."""
+def build_forecast(model, distance, now, pickup_latlon=None, drop_latlon=None):
+    """Predict price at each step from PAST_HOURS ago to GRAPH_HOURS ahead, per vehicle type.
+
+    pickup_latlon/drop_latlon are (lat, lon) tuples from the caller's own
+    geocode() call -- converted to H3 cells once here rather than per
+    prediction, since the location doesn't change across the forecast's
+    time steps, only the time does. Left as None, predict_price() snaps to
+    its nearest known cell by hex-grid distance instead of a dedicated
+    "unknown" bucket -- see model.py's _nearest_known_cell for why.
+    """
+    pickup_cell = to_h3(*pickup_latlon, resolution=HUB_CELL_RESOLUTION) if pickup_latlon else None
+    drop_cell = to_h3(*drop_latlon, resolution=HUB_CELL_RESOLUTION) if drop_latlon else None
+
     forecast = {vt: [] for vt in VEHICLE_TYPES}
     start_time = now - timedelta(hours=PAST_HOURS)
     total_minutes = (PAST_HOURS + GRAPH_HOURS) * 60
@@ -29,7 +41,8 @@ def build_forecast(model, distance, now):
         is_weekend = t.weekday() >= 5
         is_friday = t.weekday() == 4
         for vt in VEHICLE_TYPES:
-            price = predict_price(model, distance, hour, is_weekend, is_friday, vt)
+            price = predict_price(model, distance, hour, is_weekend, is_friday, vt,
+                                   pickup_cell=pickup_cell, drop_cell=drop_cell)
             forecast[vt].append((t, price))
     return forecast
 
@@ -138,7 +151,7 @@ def main():
 
     model, vehicle_columns = load_model()
     now = datetime.now()
-    forecast = build_forecast(model, distance, now)
+    forecast = build_forecast(model, distance, now, pickup_latlon=pickup, drop_latlon=drop)
 
     print(f"\n{pickup_name} -> {drop_name} ({distance:.1f} km)\n")
     for vt in VEHICLE_TYPES:

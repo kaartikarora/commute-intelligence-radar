@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import h3
 import joblib
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
@@ -45,13 +46,44 @@ def load_model():
     saved = joblib.load(MODEL_PATH)
     return saved["model"], saved["vehicle_columns"]
 
-def predict_price(model, distance_km, hour, is_weekend, is_friday, vehicle_type):
+def _nearest_known_cell(target_cell, known_cells):
+    """Finds the known H3 cell closest to target_cell on the hex grid.
+
+    There is no "unknown location" category in training anymore (see the
+    big comment in features.py for why that was a real bug, not just an
+    edge case) -- every row, synthetic or real, was assigned an actual
+    cell with real data behind it. So a prediction-time cell the model
+    hasn't seen snaps to its nearest real neighbor instead, which gets a
+    geographically sensible answer rather than a degenerate one.
+
+    target_cell=None (no coordinates available at all) falls back to the
+    first known cell -- arbitrary, but only ever reached by the module's
+    own sanity-check demo below, never by a real query, since main.py/
+    app.py/forecast.py always compute a real cell from geocoded coordinates.
+    """
+    if target_cell in known_cells:
+        return target_cell
+    if target_cell is None:
+        return sorted(known_cells)[0]
+
+    best_cell, best_distance = None, None
+    for cell in known_cells:
+        try:
+            distance = h3.grid_distance(target_cell, cell)
+        except h3.H3GridNavigationError:
+            continue  # pentagon-distortion edge case -- just skip this candidate
+        if best_distance is None or distance < best_distance:
+            best_cell, best_distance = cell, distance
+    return best_cell if best_cell is not None else sorted(known_cells)[0]
+
+def predict_price(model, distance_km, hour, is_weekend, is_friday, vehicle_type,
+                   pickup_cell=None, drop_cell=None):
     """Builds one prediction row matching the model's training columns.
 
     vehicle_columns is no longer a parameter here -- `model.feature_names_in_`
     (set automatically by scikit-learn when fit on a DataFrame) already has
-    every column name the model was trained on, vehicle and rainy dummies
-    included, so there's nothing left to pass in separately.
+    every column name the model was trained on, vehicle, rainy, and location
+    dummies included, so there's nothing left to pass in separately.
 
     Rainy columns are always set to "unknown" here, never True or False:
     future weather genuinely isn't known at prediction time, and guessing
@@ -60,6 +92,12 @@ def predict_price(model, distance_km, hour, is_weekend, is_friday, vehicle_type)
     in training too -- 84 of its real rows also have unknown rainy status,
     from auto_logger.py's own weather lookup failing honestly instead of
     guessing.
+
+    pickup_cell/drop_cell are H3 cell strings (see features.py) computed by
+    the caller from real geocoded coordinates -- this function doesn't
+    geocode anything itself. A cell the model hasn't seen snaps to its
+    nearest known neighbor (_nearest_known_cell above) instead of a
+    dedicated "unknown" bucket.
     """
     row = {
         "distance_km": distance_km,
@@ -67,11 +105,21 @@ def predict_price(model, distance_km, hour, is_weekend, is_friday, vehicle_type)
         "is_weekend": int(is_weekend),
         "is_friday": int(is_friday),
     }
+
+    pcell_known = {c.removeprefix("pcell_") for c in model.feature_names_in_ if c.startswith("pcell_")}
+    dcell_known = {c.removeprefix("dcell_") for c in model.feature_names_in_ if c.startswith("dcell_")}
+    target_pcell = f"pcell_{_nearest_known_cell(pickup_cell, pcell_known)}"
+    target_dcell = f"dcell_{_nearest_known_cell(drop_cell, dcell_known)}"
+
     for col in model.feature_names_in_:
         if col.startswith("vt_"):
             row[col] = 1 if col == f"vt_{vehicle_type}" else 0
         elif col.startswith("rainy_"):
             row[col] = 1 if col.endswith("_nan") else 0
+        elif col.startswith("pcell_"):
+            row[col] = 1 if col == target_pcell else 0
+        elif col.startswith("dcell_"):
+            row[col] = 1 if col == target_dcell else 0
 
     X_one = pd.DataFrame([row]).reindex(columns=model.feature_names_in_, fill_value=0)
     return model.predict(X_one)[0]
