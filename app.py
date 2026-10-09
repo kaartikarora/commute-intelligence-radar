@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from geocoding import geocode, is_in_blr
 from spatial import get_road_distance_km
@@ -44,7 +45,14 @@ def predict(req: RouteRequest):
     if distance is None:
         return {"error": "Could not find a drivable route."}
 
-    now = datetime.now()
+    # Render's servers run in UTC, not IST -- a naive datetime.now() silently
+    # returns the host's system time, which is correct on a local Windows
+    # machine (configured for IST) but ~5.5 hours wrong once deployed. Every
+    # prediction depends on hour-of-day, so this shifted every single live
+    # prediction's time-of-day context -- confirmed by reproducing a live
+    # discrepancy (predicted prices for "12:17" when the real time was
+    # 17:51, matching the UTC/IST offset almost exactly).
+    now = datetime.now(ZoneInfo("Asia/Kolkata"))
     forecast = build_forecast(model, distance, now, pickup_latlon=pickup, drop_latlon=drop)
 
     # build the response: for each vehicle, current price + wait rec + the full curve

@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from geocoding import geocode, is_in_blr
 from spatial import get_road_distance_km, to_h3
@@ -28,7 +29,10 @@ def main():
 
     model, vehicle_columns = load_model()
 
-    now = datetime.now()
+    # Anchored to IST explicitly (not just datetime.now()) so this behaves
+    # identically wherever it runs, not only on a machine already set to IST
+    # -- see app.py for the deployed bug this same pattern caused.
+    now = datetime.now(ZoneInfo("Asia/Kolkata"))
     hour = now.hour + now.minute / 60
     is_weekend = now.weekday() >= 5
     is_friday = now.weekday() == 4
